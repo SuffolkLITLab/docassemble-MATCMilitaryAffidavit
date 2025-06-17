@@ -110,27 +110,30 @@ code: |
 id: Mtc_militaryaffidavit
 continue button field: mtc_militaryaffidavit_intro
 question: |
-  Mtc militaryaffidavit
+  Massachusetts Trial Court - Military Affidavit
 subquestion: |
   Before you get started, you need to...
 
+  Gather all necessary documents related to your case. 
+
+  This interview should take around 10 minutes to complete.
 
 ---
-id: Districtcourt
+id: DistrictCourt
 question: |
-  Districtcourt
+  Select the division of the Massachusetts Trial Court where your case was filed:
 fields:
-  - "Districtcourt": DistrictCourt
+  - "District Court": DistrictCourt
     datatype: yesno
-  - "Housingcourt": HousingCourt
+  - "Housing Court": HousingCourt
     datatype: yesno
-  - "Juvenilecourt": JuvenileCourt
+  - "Juvenile Court": JuvenileCourt
     datatype: yesno
-  - "Landcourt": LandCourt
+  - "Land Court": LandCourt
     datatype: yesno
-  - "Probateampfamilycourt": ProbateAmpFamilyCourt
+  - "Probate and Family Court": ProbateAmpFamilyCourt 
     datatype: yesno
-  - "Superiorcourt": SuperiorCourt
+  - "Superior Court": SuperiorCourt
     datatype: yesno
 ---
 id: Thefollowingpartyiesisare1
