@@ -81,7 +81,7 @@ code: |
   docket_number
   plaintiffs.gather()
   set_progress(48)
-  trial_court.division
+  #trial_court.division
   defendants.gather()
   signature_date
   set_progress(64)
@@ -489,10 +489,10 @@ attachment:
       - "other_parties1_name_full": ${ other_parties[0] }
       - "other_parties2_name_full": ${ other_parties[1] }
       - "other_parties3_name_full": ${ other_parties[2] }
-      - "TheFollowingPartyIesIsAre2": ${ TheFollowingPartyIesIsAre2 }
-      - "other_parties4_name_full": ${ other_parties[3] }
-      - "other_parties5_name_full": ${ other_parties[4] }
-      - "other_parties6_name_full": ${ other_parties[5] }
+      - "TheFollowingPartyIesIsAre2": ${  "Yes" if (people_not_military.number_gathered()) > 0 else "No"  }
+      - "other_parties4_name_full": ${ other_parties[0] if other_parties[0] in people_not_military else "" }
+      - "other_parties5_name_full": ${ other_parties[1] if other_parties[1] in people_not_military else "" }
+      - "other_parties6_name_full": ${ comma_and_list([party for party in other_parties if party in people_not_military]) }
       - "TheFollowingPartyIesHasHave": ${ TheFollowingPartyIesHasHave }
       - "other_parties7_name_full": ${ other_parties[6] }
       - "other_parties8_name_full": ${ other_parties[7] }
