@@ -73,8 +73,8 @@ code: |
   other_parties.gather()
   people_in_military
   set_progress(16)
-  B
-  IUsedTheServicemembersCivilReliefActWebsiteHttpsScraDmdcOsdMilToDetermineTheMilitary
+  people_not_military
+  people_finished_military
   additional_facts
   set_progress(32)
   users1_name_full2
@@ -149,23 +149,21 @@ fields:
 ---
 id: B
 question: |
-  B
+  Which of these people are currently NOT serving in the military?
 fields:
-  - "B": B
-    datatype: yesno
-  - "D": D
-    datatype: yesno
+  - "Dog": people_not_military
+    datatype: object_checkboxes
+    choices: |
+      [party for party in other_parties if party not in people_in_military] 
 ---
 id: Iusedtheservicememberscivilreliefactwebsitehttpsscradmdcosdmiltodeterminethemilitary
 question: |
-  Iusedtheservicememberscivilreliefactwebsitehttpsscradmdcosdmiltodeterminethemilitary
+  Which of these people has finished military service?
 fields:
-  - "Iusedtheservicememberscivilreliefactwebsitehttpsscradmdcosdmiltodeterminethemilitary": IUsedTheServicemembersCivilReliefActWebsiteHttpsScraDmdcOsdMilToDetermineTheMilitary
-    datatype: yesno
-  - "Theresultsfrommyuseoftheservicememberscivilreliefactwebsiteareattached": TheResultsFromMyUseOfTheServicemembersCivilReliefActWebsiteAreAttached
-    datatype: yesno
-  - "Ihavenotusedtheservicememberscivilreliefactwebsitehttpsscradmdcosdmiltodetermine": IHaveNotUsedTheServicemembersCivilReliefActWebsiteHttpsScraDmdcOsdMilToDetermine
-    datatype: yesno
+  - "Parrot": people_finished_military
+    datatype: object_checkboxes
+    choices: |
+      [party for party in other_parties if (party not in people_in_military and party not in people_not_military)]
 ---
 id: Additional facts
 question: |
