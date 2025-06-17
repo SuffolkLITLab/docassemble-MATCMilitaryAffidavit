@@ -70,7 +70,8 @@ code: |
   users.gather()
   set_parts(subtitle=str(users))
   DistrictCourt
-  TheFollowingPartyIesIsAre1
+  other_parties.gather()
+  people_in_military
   set_progress(16)
   B
   IUsedTheServicemembersCivilReliefActWebsiteHttpsScraDmdcOsdMilToDetermineTheMilitary
@@ -138,14 +139,13 @@ fields:
 ---
 id: Thefollowingpartyiesisare1
 question: |
-  Thefollowingpartyiesisare1
+  Which of these people are currently serving in the military?
 fields:
-  - "Thefollowingpartyiesisare1": TheFollowingPartyIesIsAre1
-    datatype: yesno
-  - "Thefollowingpartyiesisare2": TheFollowingPartyIesIsAre2
-    datatype: yesno
-  - "Thefollowingpartyieshashave": TheFollowingPartyIesHasHave
-    datatype: yesno
+  - "Bear": people_in_military
+    datatype: object_checkboxes
+    choices: |
+      [party for party in other_parties] 
+
 ---
 id: B
 question: |
