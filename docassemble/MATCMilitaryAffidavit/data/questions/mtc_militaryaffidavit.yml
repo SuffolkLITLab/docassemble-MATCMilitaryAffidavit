@@ -141,7 +141,7 @@ id: Thefollowingpartyiesisare1
 question: |
   Which of these people are currently serving in the military?
 fields:
-  - "Bear": people_in_military
+  - "Defendant:": people_in_military
     datatype: object_checkboxes
     choices: |
       [party for party in other_parties] 
@@ -151,7 +151,7 @@ id: B
 question: |
   Which of these people are currently NOT serving in the military?
 fields:
-  - "Dog": people_not_military
+  - "Defendant:": people_not_military
     datatype: object_checkboxes
     choices: |
       [party for party in other_parties if party not in people_in_military] 
@@ -167,27 +167,20 @@ fields:
 ---
 id: Additional facts
 question: |
-  Additional facts
+  You are required to state facts that support this affidavit. 
 fields:
   - "Additional facts": additional_facts
     maxlength: 45
-  - "Additional facts2": additional_facts2
-    maxlength: 91
-  - "Additional facts3": additional_facts3
-    maxlength: 91
-  - "Facts": facts
-    input type: area
-    maxlength: 1116
-  - "Signature date2": signature_date2
+  - "Signature Date": signature_date2
     maxlength: 54
-  - "Attorney1 bbo number": attorney1_bbo_number
+  - "Attorney BBO Number": attorney1_bbo_number
     maxlength: 52
 ---
 id: Users1 name full2
 question: |
-  Users1 name full2
+  Please enter your name, address, phone number, and email address:
 fields:
-  - "Users1 name full2": users1_name_full2
+  - "Enter here:": users1_name_full2
     input type: area
     maxlength: 414
 ---
@@ -217,6 +210,7 @@ code: |
   [user.address.address for user in users.complete_elements()]
   addresses_to_search = [user.address for user in users.complete_elements()]
 ---
+
 id: mtc militaryaffidavit review screen
 event: review_mtc_militaryaffidavit
 question: |
