@@ -4,11 +4,11 @@ include:
 ---
 metadata:
   title: >-
-    Mtc militaryaffidavit
+    MATC Military Affidavit
   short title: >-
-    Mtc militaryaffidavit
+    MATC Military Affidavit
   description: |-
-    Mtc militaryaffidavit
+    MATC Military Affidavit
   can_I_use_this_form: |
   before_you_start: |
     Before you get started, you need to...
@@ -76,6 +76,7 @@ code: |
   set_progress(16)
   people_not_military
   people_finished_military
+  unable_to_determine_military
   additional_facts
   set_progress(32)
   users1_name_full2
@@ -152,7 +153,6 @@ fields:
     datatype: object_checkboxes
     choices: |
       [party for party in other_parties] 
-
 ---
 id: NOT currently serving in the military
 question: |
@@ -171,6 +171,15 @@ fields:
     datatype: object_checkboxes
     choices: |
       [party for party in other_parties if (party not in people_in_military and party not in people_not_military)]
+---
+id: UNABLE to determine military status 
+question: | 
+  I am unable to determine whether the following defendant(s) is/are in military service:
+fields:
+  - "Defendant:": unable_to_determine_military
+    datatype: object_checkboxes
+    choices: |
+      [party for party in other_parties if (party not in people_in_military and party not in people_not_military and party not in people_finished_military)]
 ---
 id: Additional facts
 question: |
