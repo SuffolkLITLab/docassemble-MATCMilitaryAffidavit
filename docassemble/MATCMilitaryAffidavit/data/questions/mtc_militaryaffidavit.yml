@@ -137,7 +137,7 @@ fields:
   - "Superior Court": SuperiorCourt
     datatype: yesno
 ---
-id: Thefollowingpartyiesisare1
+id: CURRENTLY serving in the military
 question: |
   Which of these people are currently serving in the military?
 fields:
@@ -147,7 +147,7 @@ fields:
       [party for party in other_parties] 
 
 ---
-id: B
+id: NOT currently serving in the military
 question: |
   Which of these people are currently NOT serving in the military?
 fields:
@@ -156,11 +156,11 @@ fields:
     choices: |
       [party for party in other_parties if party not in people_in_military] 
 ---
-id: Iusedtheservicememberscivilreliefactwebsitehttpsscradmdcosdmiltodeterminethemilitary
+id: FINISHED serving in the military 
 question: |
   Which of these people has finished military service?
 fields:
-  - "Parrot": people_finished_military
+  - "Defendant:": people_finished_military
     datatype: object_checkboxes
     choices: |
       [party for party in other_parties if (party not in people_in_military and party not in people_not_military)]
@@ -172,11 +172,12 @@ fields:
   - "Additional facts": additional_facts
     maxlength: 45
   - "Signature Date": signature_date2
+    datatype: date
     maxlength: 54
   - "Attorney BBO Number": attorney1_bbo_number
     maxlength: 52
 ---
-id: Users1 name full2
+id: User identification
 question: |
   Please enter your name, address, phone number, and email address:
 fields:
