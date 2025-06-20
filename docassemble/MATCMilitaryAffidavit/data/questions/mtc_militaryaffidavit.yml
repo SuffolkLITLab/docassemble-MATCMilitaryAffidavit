@@ -69,6 +69,7 @@ code: |
   user_ask_role = "plaintiff"
   users.gather()
   set_parts(subtitle=str(users))
+  user_role_in_case
   DistrictCourt
   other_parties.gather()
   people_in_military
@@ -115,10 +116,16 @@ question: |
 subquestion: |
   Before you get started, you need to...
 
-  Gather all necessary documents related to your case. 
+  Gather all necessary documents related to your case...
 
-  This interview should take around 10 minutes to complete.
+  This interview should take around [] minutes to complete...
 
+---
+id: interview user role in case 
+question: | 
+  Are you the person who started the case (the plaintiff)?
+yesno: user_role_in_case
+  
 ---
 id: DistrictCourt
 question: |
@@ -139,7 +146,7 @@ fields:
 ---
 id: CURRENTLY serving in the military
 question: |
-  Which of these people are currently serving in the military?
+  Which of these defendants are currently serving in the military?
 fields:
   - "Defendant:": people_in_military
     datatype: object_checkboxes
@@ -149,7 +156,7 @@ fields:
 ---
 id: NOT currently serving in the military
 question: |
-  Which of these people are currently NOT serving in the military?
+  Which of defendants are currently NOT serving in the military?
 fields:
   - "Defendant:": people_not_military
     datatype: object_checkboxes
@@ -158,7 +165,7 @@ fields:
 ---
 id: FINISHED serving in the military 
 question: |
-  Which of these people has finished military service?
+  Which of these defendants has finished military service?
 fields:
   - "Defendant:": people_finished_military
     datatype: object_checkboxes
