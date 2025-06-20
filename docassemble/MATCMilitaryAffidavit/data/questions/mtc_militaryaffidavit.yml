@@ -78,6 +78,8 @@ code: |
   people_finished_military
   unable_to_determine_military
   additional_facts
+  signature_date2
+  attorney1_bbo_number
   set_progress(32)
   users1_name_full2
   docket_number
@@ -119,7 +121,7 @@ subquestion: |
 
   Gather all necessary documents related to your case...
 
-  This interview should take around [] minutes to complete...
+  This interview should take around [X] minutes to complete...
 
 ---
 id: interview user role in case 
@@ -156,7 +158,7 @@ fields:
 ---
 id: NOT currently serving in the military
 question: |
-  Which of defendants are currently NOT serving in the military?
+  Which of the following defendants are currently NOT serving in the military?
 fields:
   - "Defendant:": people_not_military
     datatype: object_checkboxes
@@ -165,7 +167,7 @@ fields:
 ---
 id: FINISHED serving in the military 
 question: |
-  Which of these defendants has finished military service?
+  Which of the following defendants has finished military service?
 fields:
   - "Defendant:": people_finished_military
     datatype: object_checkboxes
@@ -183,10 +185,22 @@ fields:
 ---
 id: Additional facts
 question: |
-  You are required to state facts that support this affidavit. 
+  You must provide facts that support this affidavit. You can do this by either: 
+  
+  Using the Servicemembers Civil Relief Act (SCRA) website 
+  
+  OR 
+  
+  Giving other facts that help show the military status of the people listed in this affidavit. 
 fields:
   - "Additional facts": additional_facts
-    maxlength: 45
+    maxlength: 45 
+    
+---
+id: signature date and attorney bbo number 
+question: |
+  Please sign and date the affidavit below. If you are an attorney, enter your BBO number as well. 
+fields:
   - "Signature Date": signature_date2
     datatype: date
     maxlength: 54
