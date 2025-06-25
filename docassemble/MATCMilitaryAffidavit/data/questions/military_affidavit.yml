@@ -41,6 +41,8 @@ code: |
   other_parties.gather()
   additional_parties.gather()
   trial_court
+  if trial_court.department == "Housing Court":
+    summary_process_check
   set_all_military_statuses
   if any([party.military_status == "past" for party in users.union(other_parties + additional_parties)]):
     set_concluded_service_dates
@@ -199,6 +201,15 @@ fields:
         if party.military_status == "past"
       ]
 continue button field: set_concluded_service_dates
+---
+id: summary_process_check
+question: |
+  Is this case a Summary Process (eviction) case?
+subquestion: |
+  A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court.
+fields:
+  - "Yes, this is a Summary Process (eviction) case": summary_process_check
+    datatype: yesno
 ---
 id: unsure military service
 question: |
