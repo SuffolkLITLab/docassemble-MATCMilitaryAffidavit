@@ -40,6 +40,7 @@ code: |
   users.gather()
   other_parties.gather()
   additional_parties.gather()
+  trial_court
   set_all_military_statuses
   if any([party.military_status == "past" for party in users.union(other_parties + additional_parties)]):
     set_concluded_service_dates
@@ -56,7 +57,6 @@ code: |
   #   ask_unsure_serving_parties
   # if len(serving_parties) + len(concluded_service_parties) + len(unsure_serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   confirm_not_serving_parties
-  trial_court
   docket_numbers
   has_used_scra_site
   signature_date
