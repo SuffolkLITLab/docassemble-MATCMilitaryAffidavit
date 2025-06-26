@@ -49,6 +49,10 @@ code: |
   if any([party.military_status == "unknown" for party in users.union(other_parties + additional_parties)]):
     bond_agreement_i_understand
   review_military_status
+  if summary_process_check:
+    vacated_status
+  if vacated_status:
+    set_vacated_status
   # if len(serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   ask_concluded_service_parties
   #   if len(concluded_service_parties.elements):
@@ -209,7 +213,7 @@ subquestion: |
   A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court.
 fields:
   - "Yes, this is a Summary Process (eviction) case": summary_process_check
-    datatype: yesno
+    datatype: yesnoradio
 ---
 id: unsure military service
 question: |
@@ -261,6 +265,39 @@ columns:
 ---
 code: |
   form_filled_by_attorney = bool(len(attorneys))    
+---
+id: Determine if any of the parties have vacated the premsises
+question: |
+  have any of the Tenants Vacated the premise?
+fields:
+  - At least one tenant has vacated the status: vacated_status
+    datatype: yesnoradio
+---
+id: set_vacated_status
+question: |
+  Tell us whether each defendant has vacated the premises
+subquestion: |
+  Select "Vacated" if the person has already left the home.
+fields:
+  - code: |
+      [
+        {
+          "field": party.attr_name("vacated"),
+          "label": party.name_full(),
+          "item grid": {
+            "width": 3,
+            "breakpoint": "sm"
+          },
+          "datatype": "radio",
+          "choices": [
+            {"label": "Vacated", "value": True},
+            {"label": "Still in premises", "value": False}
+          ]
+        }
+        for party in sorted(other_parties)
+      ]
+continue button field: set_vacated_status
+   
 ---
 id: your name
 sets:
