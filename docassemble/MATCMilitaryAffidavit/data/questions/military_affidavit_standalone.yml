@@ -4,6 +4,7 @@ include:
   - docassemble.ALMassachusetts:al_massachusetts.yml
   - docassemble.MassAccess:massaccess.yml
   - military_affidavit.yml
+  - docassemble.MATCTheme:matc_theme.yml
 ---
 metadata:
   title: |
@@ -13,6 +14,8 @@ metadata:
   authors:
     - Pratibha Bharti
     - Quinten Steenhuis
+    - Maeve Torrey 
+    - Conner McGarry
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
