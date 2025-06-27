@@ -54,6 +54,8 @@ code: |
     vacated_status
   if vacated_status:
     set_vacated_status
+  if summary_process_check:
+    rent_paid_through
   # if len(serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   ask_concluded_service_parties
   #   if len(concluded_service_parties.elements):
@@ -214,6 +216,17 @@ fields:
         if party.military_status == "past"
       ]
 continue button field: set_concluded_service_dates
+---
+id: rent_info_gather
+question: |
+  How much rent was paid and how much was not paid?
+fields:
+  - "unpaid rent": unpaid_rent
+    datatype: currency
+  - "paid rent": rent_paid
+    datatype: currency
+  - "when was the last month rent was paid for?": rent_paid_through
+    datatype: date
 ---
 id: summary_process_check
 question: |
