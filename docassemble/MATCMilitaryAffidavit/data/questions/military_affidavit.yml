@@ -36,6 +36,7 @@ id: interview_order_military_affidavit
 code: |
   # Set the allowed courts for this interview
   form_filled_by_attorney
+  bbo
   user_ask_role
   users.gather()
   other_parties.gather()
@@ -57,9 +58,10 @@ code: |
   # if len(serving_parties) + len(concluded_service_parties) + len(unsure_serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   confirm_not_serving_parties
   trial_court
-  docket_numbers
+  docket_number
   has_used_scra_site
   signature_date
+  users[0].signature
   military_affidavit_case_name
   interview_order_military_affidavit = True
 ---
@@ -88,6 +90,13 @@ subquestion: |
   * you know the military status of each party, or 
   * you searched the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
     to find out their military status
+---
+id: What is your BBO number
+question: |
+  What is your BBO number?
+fields:
+  - "BBO": bbo
+    maxlength: 41
 ---
 id: explanation diligent search
 question: |
@@ -372,11 +381,11 @@ review:
       % for item in additional_parties:
         * ${ item }
       % endfor
-  - Edit: docket_numbers.revisit
+  - Edit: docket_number.revisit
     button: |
       **Docket numbers**
 
-      % for item in docket_numbers:
+      % for item in docket_number:
         * ${ item }
       % endfor
   - note: |
@@ -455,16 +464,16 @@ edit:
 confirm: True
 
 ---
-continue button field: docket_numbers.revisit
+continue button field: docket_number.revisit
 question: |
-  Edit docket_numbers
+  Edit docket_number
 subquestion: |
-  ${ docket_numbers.table }
+  ${ docket_number.table }
 
-  ${ docket_numbers.add_action() }
+  ${ docket_number.add_action() }
 ---
-table: docket_numbers.table
-rows: docket_numbers
+table: docket_number.table
+rows: docket_number
 columns:
   - Name: |
       row_item
@@ -522,7 +531,7 @@ attachment:
   pdf template file: military_affidavit.pdf
   # editable: False
   fields:
-      - "docket_number": ${ docket_numbers }      
+      - "docket_number": ${ docket_number }      
       - "court_department_district": ${trial_court.department == "District Court"}
       - "court_department_bmc": ${trial_court.department == "Boston Municipal Court"}
       - "court_department_housing": ${trial_court.department == "Housing Court"}
@@ -579,7 +588,7 @@ attachment:
       - "users1_name_full__2": ${users[0]}
       - "users1_address_on_one_line": ${users[0].address.on_one_line()}
       - "users1_phone": ${users[0].phone_numbers() }
-      - "bbo": ${bbo}
+      - "user_bbo": ${bbo}
       - "users1_email": ${users[0].email}
 ---
 code: |
