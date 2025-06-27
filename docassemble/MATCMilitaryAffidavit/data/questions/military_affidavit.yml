@@ -61,6 +61,7 @@ code: |
   docket_number
   has_used_scra_site
   signature_date
+  users[0].signature
   military_affidavit_case_name
   interview_order_military_affidavit = True
 ---

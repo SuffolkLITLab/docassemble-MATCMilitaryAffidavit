@@ -14,8 +14,8 @@ metadata:
   authors:
     - Pratibha Bharti
     - Quinten Steenhuis
-    - Maeve Torrey 
     - Conner McGarry
+    - Maeve Torrey
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
