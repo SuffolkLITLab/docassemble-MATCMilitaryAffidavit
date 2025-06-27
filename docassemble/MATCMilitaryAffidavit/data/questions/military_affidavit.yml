@@ -56,6 +56,8 @@ code: |
     set_vacated_status
   if summary_process_check:
     rent_paid_through
+  if summary_process_check:
+    uniform_seen
   # if len(serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   ask_concluded_service_parties
   #   if len(concluded_service_parties.elements):
@@ -236,6 +238,22 @@ subquestion: |
 fields:
   - "Yes, this is a Summary Process (eviction) case": summary_process_check
     datatype: yesnoradio
+---
+id: R10facts
+question: |
+  Facts supporting knowledge of service status
+fields:
+  - "Uniform seen": uniform_seen
+    datatype: yesno
+  - "Civillian seen": civillian_seen
+    datatype: yesno
+  - "Defendant acknowledge": defendant_acknowledge
+    datatype: yesno
+  - "Other facts": other_facts
+    datatype: yesno
+  - "Other facts text": other_facts_text
+    maxlength: 120
+    show if: other_facts
 ---
 id: unsure military service
 question: |
