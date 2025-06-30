@@ -25,6 +25,8 @@ objects:
   - serving_parties: ALPeopleList
   - unsure_serving_parties: ALPeopleList.using(auto_gather=False, gathered=True)
   - concluded_service_parties: ALPeopleList.using(auto_gather=False, gathered=True)
+  - military_affidavit_attachment: ALDocument.using(title="Military Affidavit", filename="military_affidavit", has_addendum=False)
+  - military_affidavitr_10_attachment: ALDocument.using(title="Military Affidavit R10", filename="military_affidavitr_10", has_addendum=False)
 ---
 sections:
   - review_military_affidavit: Review your answers
@@ -599,6 +601,57 @@ code: |
   # This is available to customize in other forms with more complex case name scenarios
   # Leave it undefined to use the default case name of petitioner v respondent or In the interests of respondent
   military_affidavit_case_name = ""
+---
+---
+code: |
+  if summary_process_check:
+      military_affidavitr_10_attachment.enabled = True
+      military_affidavit_attachment.enabled = False
+      al_user_bundle.elements = [military_affidavitr_10_attachment]
+      al_court_bundle.elements = [military_affidavitr_10_attachment]
+  else:
+      military_affidavitr_10_attachment.enabled = False
+      military_affidavit_attachment.enabled = True
+      al_user_bundle.elements = [military_affidavit_attachment]
+      al_court_bundle.elements = [military_affidavit_attachment]
+
+---
+attachment:
+  name: military affidavitr 10
+  filename: military_affidavitr_10
+  variable name: military_affidavitr_10_attachment[i]
+  skip undefined: True
+  pdf template file: military_affidavitr_10.pdf
+  enabled: False
+  fields:
+      - "docket_number__1": ${ docket_number }
+      - "docket_number__2": ${ docket_number }
+      - "trial_court_division__1": ${ trial_court.division }
+      - "trial_court_division__2": ${ trial_court.division }
+      - "petitioners": ${ petitioners }
+      - "respondents": ${ respondents }
+      - "users1_name_full__1": ${ users[0] }
+      - "not_service": ${ not_service }
+      - "in_service": ${ in_service }
+      - "serving_parties": ${ serving_parties }
+      - "unable_service": ${ unable_service }
+      - "unsure_serving_parties": ${ unsure_serving_parties }
+      - "uniform_seen": ${ uniform_seen }
+      - "civillian_seen": ${ civillian_seen }
+      - "defendant_acknowledge": ${ defendant_acknowledge }
+      - "other_facts": ${ other_facts }
+      - "other_facts_text": ${ other_facts_text }
+      - "rent_paid": ${ rent_paid }
+      - "unpaid_rent": ${ unpaid_rent }
+      - "unpaid_rent_date": ${ unpaid_rent_date.format() }
+      - "premise_occupy": ${ premise_occupy }
+      - "vacated_date": ${ vacated_date.format() }
+      - "parties_vacated": ${ parties_vacated }
+      - "vacated_parties": ${ vacated_parties }
+      - "bbo_number": ${ bbo_number }
+      - "users1_full_name__2": ${ users1_full_name }
+      - "signature_date": ${ signature_date }
+      - "users1_signature": ${ users[0].signature_if_final(i) }
 ---
 need:
   - military_affidavit_case_name
