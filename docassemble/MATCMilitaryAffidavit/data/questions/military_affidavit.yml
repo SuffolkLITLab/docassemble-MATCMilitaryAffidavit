@@ -277,9 +277,9 @@ code: |
 ---
 id: Determine if any of the parties have vacated the premsises
 question: |
-  Have any of the Tenants vacated the premises?
+  Have any of the tenants vacated the premises?
 fields:
-  - At least one tenant has vacated the status: vacated_status
+  - At least one tenant has vacated the premise: vacated_status
     datatype: yesnoradio
 ---
 id: set_vacated_status
@@ -343,7 +343,7 @@ fields:
       We will call this person an **additional party** in the rest of this interview.
     show if: additional_parties.there_are_any
 ---
-id: additional party name i
+id: additional party name 
 sets:
   - additional_parties[i].name.first
   - additional_parties[i].name.last
