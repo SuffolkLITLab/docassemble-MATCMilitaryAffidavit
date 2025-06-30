@@ -219,9 +219,9 @@ id: summary_process_check
 question: |
   Is this case a Summary Process (eviction) case?
 subquestion: |
-  A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court.
+  A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court. 
 fields:
-  - "Yes, this is a Summary Process (eviction) case": summary_process_check
+  - "Is this a Summary Process (eviction) case": summary_process_check
     datatype: yesnoradio
 ---
 id: unsure military service
@@ -277,14 +277,14 @@ code: |
 ---
 id: Determine if any of the parties have vacated the premsises
 question: |
-  have any of the Tenants Vacated the premise?
+  Have any of the Tenants vacated the premises?
 fields:
   - At least one tenant has vacated the status: vacated_status
     datatype: yesnoradio
 ---
 id: set_vacated_status
 question: |
-  Tell us whether each defendant has vacated the premises
+  Tell us whether each defendant has vacated the premises:
 subquestion: |
   Select "Vacated" if the person has already left the home.
 fields:
