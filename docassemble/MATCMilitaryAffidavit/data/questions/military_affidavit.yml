@@ -339,7 +339,7 @@ fields:
           "field": party.attr_name("vacated"),
           "label": party.name_full(),
           "item grid": {
-            "width": 3,
+            "width": 6,
             "breakpoint": "sm"
           },
           "datatype": "radio",
