@@ -25,6 +25,8 @@ objects:
   - serving_parties: ALPeopleList
   - unsure_serving_parties: ALPeopleList.using(auto_gather=False, gathered=True)
   - concluded_service_parties: ALPeopleList.using(auto_gather=False, gathered=True)
+  - military_affidavit_attachment: ALDocument.using(title="Military Affidavit", filename="military_affidavit", has_addendum=False)
+  - military_affidavitr_10_attachment: ALDocument.using(title="Military Affidavit R10", filename="military_affidavitr_10", has_addendum=False)
   - exhibit_attachment: ALExhibitDocument.using(
           title="Exhibits",
           filename="exhibits",
@@ -61,6 +63,11 @@ code: |
     vacated_status
   if vacated_status:
     set_vacated_status
+    vacated_parties
+  if summary_process_check:
+    rent_paid_through
+  if summary_process_check:
+    uniform_seen
   # if len(serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   ask_concluded_service_parties
   #   if len(concluded_service_parties.elements):
@@ -224,6 +231,17 @@ fields:
       ]
 continue button field: set_concluded_service_dates
 ---
+id: rent_info_gather
+question: |
+  How much rent was paid and how much was not paid?
+fields:
+  - "unpaid rent": unpaid_rent
+    datatype: currency
+  - "paid rent": rent_paid
+    datatype: currency
+  - "when was the last month rent was paid for?": rent_paid_through
+    datatype: date
+---
 id: summary_process_check
 question: |
   Is this case a Summary Process (eviction) case?
@@ -234,6 +252,22 @@ subquestion: |
 fields:
   - "Is this a Summary Process (eviction) case": summary_process_check
     datatype: yesnoradio
+---
+id: R10facts
+question: |
+  Facts supporting knowledge of service status
+fields:
+  - "Uniform seen": uniform_seen
+    datatype: yesno
+  - "Civillian seen": civillian_seen
+    datatype: yesno
+  - "Defendant acknowledge": defendant_acknowledge
+    datatype: yesno
+  - "Other facts": other_facts
+    datatype: yesno
+  - "Other facts text": other_facts_text
+    maxlength: 120
+    show if: other_facts
 ---
 id: unsure military service
 question: |
@@ -316,8 +350,16 @@ fields:
         }
         for party in sorted(other_parties)
       ]
+  - "When did someone move out?": vacated_date
+    datatype: date
 continue button field: set_vacated_status
-   
+--- 
+code: |
+  vacated_parties = [party.name_full() for party in other_parties if getattr(party, "vacated", None) is True]
+  parties_vacated = len(vacated_parties) > 0
+  premise_occupy = any(getattr(party, "vacated", None) is False for party in other_parties)
+---
+
 ---
 id: your name
 sets:
@@ -608,6 +650,57 @@ code: |
   # This is available to customize in other forms with more complex case name scenarios
   # Leave it undefined to use the default case name of petitioner v respondent or In the interests of respondent
   military_affidavit_case_name = ""
+---
+---
+code: |
+  if summary_process_check:
+      military_affidavitr_10_attachment.enabled = True
+      military_affidavit_attachment.enabled = False
+      al_user_bundle.elements = [military_affidavitr_10_attachment]
+      al_court_bundle.elements = [military_affidavitr_10_attachment]
+  else:
+      military_affidavitr_10_attachment.enabled = False
+      military_affidavit_attachment.enabled = True
+      al_user_bundle.elements = [military_affidavit_attachment]
+      al_court_bundle.elements = [military_affidavit_attachment]
+
+---
+attachment:
+  name: military affidavitr 10
+  filename: military_affidavitr_10
+  variable name: military_affidavitr_10_attachment[i]
+  skip undefined: True
+  pdf template file: military_affidavitr_10.pdf
+  enabled: False
+  fields:
+      - "docket_number__1": ${ docket_number }
+      - "docket_number__2": ${ docket_number }
+      - "trial_court_division__1": ${ trial_court.division }
+      - "trial_court_division__2": ${ trial_court.division }
+      - "petitioners": ${ petitioners }
+      - "respondents": ${ respondents }
+      - "users1_name_full__1": ${ users[0] }
+      - "not_service": ${ not_service }
+      - "in_service": ${ in_service }
+      - "serving_parties": ${ serving_parties }
+      - "unable_service": ${ unable_service }
+      - "unsure_serving_parties": ${ unsure_serving_parties }
+      - "uniform_seen": ${ uniform_seen }
+      - "civillian_seen": ${ civillian_seen }
+      - "defendant_acknowledge": ${ defendant_acknowledge }
+      - "other_facts": ${ other_facts }
+      - "other_facts_text": ${ other_facts_text }
+      - "rent_paid": ${ rent_paid }
+      - "unpaid_rent": ${ unpaid_rent }
+      - "unpaid_rent_date": ${ unpaid_rent_date.format() }
+      - "premise_occupy": ${ premise_occupy }
+      - "vacated_date": ${ vacated_date.format() }
+      - "parties_vacated": ${ parties_vacated }
+      - "vacated_parties": ${ comma_and_list(vacated_parties) }
+      - "bbo_number": ${ bbo_number }
+      - "users1_full_name__2": ${ users1_full_name }
+      - "signature_date": ${ signature_date }
+      - "users1_signature": ${ users[0].signature_if_final(i) }
 ---
 need:
   - military_affidavit_case_name
