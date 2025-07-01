@@ -229,6 +229,8 @@ question: |
   Is this case a Summary Process (eviction) case?
 subquestion: |
   A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court. 
+  
+  For more information on determining whether your case qualifies as a Summary Process case, please visit: https://www.mass.gov/info-details/overview-of-summary-process-for-tenants.
 fields:
   - "Is this a Summary Process (eviction) case": summary_process_check
     datatype: yesnoradio
