@@ -44,7 +44,7 @@ comment: |
 id: interview_order_military_affidavit
 code: |
   # Set the allowed courts for this interview
-  form_filled_by_attorney
+  #form_filled_by_attorney
   user_role
   if user_role == "I am an attorney":
     bbo
