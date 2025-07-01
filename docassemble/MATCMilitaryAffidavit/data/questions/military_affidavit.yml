@@ -677,8 +677,26 @@ attachment:
       - "docket_number__2": ${ docket_number }
       - "trial_court_division__1": ${ trial_court.division }
       - "trial_court_division__2": ${ trial_court.division }
-      - "petitioners": ${ petitioners }
-      - "respondents": ${ respondents }
+      - "petitioners": |
+          % if showifdef("military_affidavit_case_name"):
+          ${ military_affidavit_case_name }
+          % else:
+            % if user_ask_role == "plaintiff":
+            % if len(other_parties):
+          ${ users }
+            % else:
+          In the interests of ${ users }
+            % endif
+            % else:
+          ${ other_parties }
+            % endif
+          % endif
+      - "respondents": |
+          % if user_ask_role == "defendant":
+          ${ users }
+          % else:
+          ${ other_parties }
+          % endif
       - "users1_name_full__1": ${ users[0] }
       - "not_service": ${ not_service }
       - "in_service": ${ in_service }
@@ -692,7 +710,7 @@ attachment:
       - "other_facts_text": ${ other_facts_text }
       - "rent_paid": ${ rent_paid }
       - "unpaid_rent": ${ unpaid_rent }
-      - "unpaid_rent_date": ${ unpaid_rent_date.format() }
+      - "rent_paid_through": ${ rent_paid_through }
       - "premise_occupy": ${ premise_occupy }
       - "vacated_date": ${ vacated_date.format() }
       - "parties_vacated": ${ parties_vacated }
