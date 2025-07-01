@@ -27,6 +27,13 @@ objects:
   - concluded_service_parties: ALPeopleList.using(auto_gather=False, gathered=True)
   - military_affidavit_attachment: ALDocument.using(title="Military Affidavit", filename="military_affidavit", has_addendum=False)
   - military_affidavitr_10_attachment: ALDocument.using(title="Military Affidavit R10", filename="military_affidavitr_10", has_addendum=False)
+  - exhibit_attachment: ALExhibitDocument.using(
+          title="Exhibits",
+          filename="exhibits",
+          add_page_numbers=True,
+          include_table_of_contents=True,
+          include_exhibit_cover_pages=True,
+        )
 ---
 sections:
   - review_military_affidavit: Review your answers
@@ -73,6 +80,8 @@ code: |
   #   confirm_not_serving_parties
   docket_number
   has_used_scra_site
+  if exhibit_attachment.exhibits.has_exhibits:
+    exhibit_attachment.exhibits.gather()
   signature_date
   users[0].signature
   military_affidavit_case_name
@@ -237,9 +246,11 @@ id: summary_process_check
 question: |
   Is this case a Summary Process (eviction) case?
 subquestion: |
-  A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court.
+  A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court. 
+  
+  For more information on determining whether your case qualifies as a Summary Process case, please visit: https://www.mass.gov/info-details/overview-of-summary-process-for-tenants.
 fields:
-  - "Yes, this is a Summary Process (eviction) case": summary_process_check
+  - "Is this a Summary Process (eviction) case": summary_process_check
     datatype: yesnoradio
 ---
 id: R10facts
@@ -311,14 +322,14 @@ code: |
 ---
 id: Determine if any of the parties have vacated the premsises
 question: |
-  have any of the Tenants Vacated the premise?
+  Have any of the tenants vacated the premises?
 fields:
-  - At least one tenant has vacated the status: vacated_status
+  - At least one tenant has vacated the premise: vacated_status
     datatype: yesnoradio
 ---
 id: set_vacated_status
 question: |
-  Tell us whether each defendant has vacated the premises
+  Tell us whether each defendant has vacated the premises:
 subquestion: |
   Select "Vacated" if the person has already left the home.
 fields:
@@ -385,7 +396,7 @@ fields:
       We will call this person an **additional party** in the rest of this interview.
     show if: additional_parties.there_are_any
 ---
-id: additional party name i
+id: additional party name 
 sets:
   - additional_parties[i].name.first
   - additional_parties[i].name.last
@@ -471,6 +482,27 @@ review:
       % for item in additional_parties:
         * ${ item }
       % endfor
+  - Edit: exhibit_attachment.exhibits.has_exhibits
+    button: |
+      **Are the exhibits attached?**
+      
+      % if exhibit_attachment.exhibits.has_exhibits:
+      Yes
+      % elif not exhibit_attachment.exhibits.has_exhibits:
+      No
+      % endif
+  - note: |
+      **Supporting exhibits**:
+      
+      % if exhibit_attachment.exhibits.there_are_any:
+      ${ exhibit_attachment.exhibits.in_progress_exhibits }
+      % else:
+      You have not attached any exhibits yet.
+      % endif
+
+      ${ exhibit_attachment.exhibits.add_action() }
+    css class: bg-secondary-subtle
+    show if: exhibit_attachment.exhibits.has_exhibits
   - Edit: docket_number.revisit
     button: |
       **Docket numbers**
@@ -518,6 +550,15 @@ review:
       **BBO number (if you are an attorney)**:
       ${ bbo }
 ---
+id: revisit exhibit_attachment
+continue button field: exhibit_attachment.revisit
+question: |
+  Edit your supporting exhibits
+subquestion: |
+  ${ exhibit_attachment.exhibits.rearrange_exhibits_table }
+
+  ${ exhibit_attachment.add_action() }
+---
 continue button field: plaintiffs.revisit
 question: |
   Edit plaintiffs
@@ -552,7 +593,6 @@ columns:
 edit:
   - name.first
 confirm: True
-
 ---
 continue button field: docket_number.revisit
 question: |
