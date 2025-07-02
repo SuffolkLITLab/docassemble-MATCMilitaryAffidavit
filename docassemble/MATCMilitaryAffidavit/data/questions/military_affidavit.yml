@@ -322,9 +322,12 @@ code: |
 ---
 id: Determine if any of the parties have vacated the premsises
 question: |
-  Have any of the tenants vacated the premises?
+  Have any of the tenants vacated (moved out) of the property?
+  
+
+  "Vacated" means the tenant has permanently left the property and no longer lives there. 
 fields:
-  - At least one tenant has vacated the premise: vacated_status
+  - At least one tenant has permanently moved out: vacated_status
     datatype: yesnoradio
 ---
 id: set_vacated_status
