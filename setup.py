@@ -53,7 +53,7 @@ setup(name='docassemble.MATCMilitaryAffidavit',
       license='The MIT License',
       url='https://courtformsonline.org',
       packages=find_namespace_packages(),
-      install_requires=['docassemble.ALToolbox>=0.11.3', 'docassemble.AssemblyLine>=3.4.0'],
+      install_requires=['docassemble.ALToolbox @ git+https://github.com/SuffolkLITLab/docassemble-ALToolbox.git@main', 'docassemble.AssemblyLine>=3.4.1'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MATCMilitaryAffidavit/', package='docassemble.MATCMilitaryAffidavit'),
      )

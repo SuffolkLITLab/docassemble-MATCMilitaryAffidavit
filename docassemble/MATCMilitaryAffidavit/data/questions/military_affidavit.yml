@@ -65,6 +65,11 @@ code: |
     set_vacated_status
     vacated_parties
   if summary_process_check:
+    use_rent_worksheet
+    if use_rent_worksheet:
+      rent_static_check
+      unpaid_rent_start_date
+      rent_worksheet
     rent_paid_through
   if summary_process_check:
     uniform_seen
@@ -231,6 +236,59 @@ fields:
       ]
 continue button field: set_concluded_service_dates
 ---
+id: ask_use_rent_worksheet
+question: |
+  Would you like to use the rent worksheet on the form to itemize each month’s rent and payments?
+subquestion: |
+  If you choose “Yes,” you’ll get a table where you can enter the rent due and amount paid for each month, and we’ll calculate the unpaid total for you.
+fields:
+  - "Use rent worksheet": use_rent_worksheet
+    datatype: yesnoradio
+---
+id: rent_static_and_amount
+question: |
+  For the rent worksheet:
+  1. Has your rent stayed the same each month?  
+  2. If yes, what was the monthly rent amount?  
+fields:
+  - "Has rent stayed the same each month?": rent_static_check
+    datatype: yesnoradio
+  - "Monthly rent amount": monthly_rent
+    datatype: currency
+    show if:
+      variable: rent_static_check
+      is: True
+  - "variable rent WIP": variable_rent
+    show if:
+      variable: rent_static_check
+      is: False
+---
+id: rent_unpaid_date_range
+question: |
+  For the rent worksheet, what is the period during which rent was not paid?
+subquestion: |
+  Enter the first month rent was not paid, and the last month rent was not paid. (pick any day in the month you want to select)
+fields:
+  - "First month rent was not paid": unpaid_rent_start_date
+    datatype: date
+  - "Last month rent was not paid": unpaid_rent_end_date
+    datatype: date
+---
+id: set_months_to_calc
+code: |
+  months_to_calc = []
+  current = unpaid_rent_start_date.replace(day=1)
+  end_date = unpaid_rent_end_date.replace(day=1)
+  while current <= end_date:
+      key = current.strftime("%Y_%m")
+      label = current.strftime("%B %Y")
+      months_to_calc.append((key, label))
+      # advance one month
+      if current.month == 12:
+          current = current.replace(year=current.year+1, month=1)
+      else:
+          current = current.replace(month=current.month+1)
+---
 id: rent_info_gather
 question: |
   How much rent was paid and how much was not paid?
@@ -241,6 +299,35 @@ fields:
     datatype: currency
   - "when was the last month rent was paid for?": rent_paid_through
     datatype: date
+---
+---
+id: rent_worksheet
+question: |
+  Enter the rent paid (if any) for each month in the unpaid period.
+fields:
+  - code: |
+      [
+        field
+        for key, label in months_to_calc
+        for field in [
+          {
+            "field": f"month_label_{key}",
+            "label": label,
+            "datatype": "text",
+            "item grid": {"width": 3, "breakpoint": "sm"}
+          },
+          {
+            "field": f"rent_paid_{key}",
+            "label": "Rent paid",
+            "datatype": "currency",
+            "item grid": {"width": 3, "breakpoint": "sm"}
+          }
+        ]
+      ]
+show if:
+continue button field: rent_worksheet
+---
+
 ---
 id: summary_process_check
 question: |
