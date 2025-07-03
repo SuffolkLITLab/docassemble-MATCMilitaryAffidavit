@@ -68,7 +68,7 @@ code: |
     use_rent_worksheet
     if use_rent_worksheet:
       monthly_rent
-      unpaid_rent_start_date
+      set_unpaid_rent_month_year
       rent_worksheet
     rent_paid_through
   if summary_process_check:
@@ -252,32 +252,64 @@ question: |
 fields:
   - "Monthly rent amount": monthly_rent
     datatype: currency
----   
-id: rent_unpaid_date_range
-question: |
-  For the rent worksheet, what is the period during which rent was not paid?
-subquestion: |
-  Enter the first month rent was not paid, and the last month rent was not paid. (pick any day in the month you want to select)
-fields:
-  - "First month rent was not paid": unpaid_rent_start_date
-    datatype: date
-  - "Last month rent was not paid": unpaid_rent_end_date
-    datatype: date
 ---
-id: set_months_to_calc
+id: rent_unpaid_month_year_prep
 code: |
-  months_to_calc = []
-  current = unpaid_rent_start_date.replace(day=1)
-  end_date = unpaid_rent_end_date.replace(day=1)
-  while current <= end_date:
-      key = current.strftime("%Y_%m")
-      label = current.strftime("%B %Y")
-      months_to_calc.append((key, label))
-      # advance one month
-      if current.month == 12:
-          current = current.replace(year=current.year+1, month=1)
-      else:
-          current = current.replace(month=current.month+1)
+  import calendar
+  from datetime import date
+  months_to_calc = [{"label": calendar.month_name[m], "value": m} for m in range(1, 13)]
+  this_year = date.today().year
+  years_to_calc = [{"label": str(y), "value": y} for y in range(this_year - 5, this_year + 1)]
+---
+id: rent_unpaid_month_year
+question: |
+  For the rent worksheet, select the first and last month rent was not paid.
+fields:
+  - code: |
+      [
+        {
+          "field": "unpaid_start_month",
+          "label": "Start month",
+          "datatype": "select",
+          "choices": months_to_calc
+        },
+        {
+          "field": "unpaid_start_year",
+          "label": "Start year",
+          "datatype": "select",
+          "choices": years_to_calc
+        },
+        {
+          "field": "unpaid_end_month",
+          "label": "End month",
+          "datatype": "select",
+          "choices": months_to_calc
+        },
+        {
+          "field": "unpaid_end_year",
+          "label": "End year",
+          "datatype": "select",
+          "choices": years_to_calc
+        }
+      ]
+continue button field: set_unpaid_rent_month_year
+---
+#id: set_months_to_calc
+#code: |
+#  from datetime import date
+#  start = date(unpaid_start_year, unpaid_start_month, 1)
+#  end   = date(unpaid_end_year,   unpaid_end_month,   1)
+#  months_to_calc = []
+#  current = start
+#  while current <= end:
+#      key = current.strftime("%Y_%m")
+#      label = current.strftime("%B %Y")
+#      months_to_calc.append((key, label))
+#      if current.month == 12:
+#          current = current.replace(year=current.year+1, month=1)
+#      else:
+#          current = current.replace(month=current.month+1)
+#continue button field: set_months_to_calc
 ---
 id: rent_info_gather
 question: |
@@ -435,8 +467,6 @@ code: |
   vacated_parties = [party.name_full() for party in other_parties if getattr(party, "vacated", None) is True]
   parties_vacated = len(vacated_parties) > 0
   premise_occupy = any(getattr(party, "vacated", None) is False for party in other_parties)
----
-
 ---
 id: your name
 sets:
