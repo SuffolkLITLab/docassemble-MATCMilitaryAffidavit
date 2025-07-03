@@ -67,7 +67,7 @@ code: |
   if summary_process_check:
     use_rent_worksheet
     if use_rent_worksheet:
-      rent_static_check
+      monthly_rent
       unpaid_rent_start_date
       rent_worksheet
     rent_paid_through
@@ -245,24 +245,14 @@ fields:
   - "Use rent worksheet": use_rent_worksheet
     datatype: yesnoradio
 ---
-id: rent_static_and_amount
+id: montly_rent
 question: |
   For the rent worksheet:
-  1. Has your rent stayed the same each month?  
-  2. If yes, what was the monthly rent amount?  
+  please input the amount of the montly rent.
 fields:
-  - "Has rent stayed the same each month?": rent_static_check
-    datatype: yesnoradio
   - "Monthly rent amount": monthly_rent
     datatype: currency
-    show if:
-      variable: rent_static_check
-      is: True
-  - "variable rent WIP": variable_rent
-    show if:
-      variable: rent_static_check
-      is: False
----
+---   
 id: rent_unpaid_date_range
 question: |
   For the rent worksheet, what is the period during which rent was not paid?
