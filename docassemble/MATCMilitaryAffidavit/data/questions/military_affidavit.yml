@@ -248,7 +248,7 @@ fields:
 id: montly_rent
 question: |
   For the rent worksheet:
-  please input the amount of the montly rent.
+  please input the amount of the montly rent. If the rent was not the same every month you can change it later/
 fields:
   - "Monthly rent amount": monthly_rent
     datatype: currency
@@ -257,9 +257,15 @@ id: rent_unpaid_month_year_prep
 code: |
   import calendar
   from datetime import date
-  months_to_calc = [{"label": calendar.month_name[m], "value": m} for m in range(1, 13)]
+  months_choices = [
+    {"label": calendar.month_name[m], "value": m}
+    for m in range(1, 13)
+  ]
   this_year = date.today().year
-  years_to_calc = [{"label": str(y), "value": y} for y in range(this_year - 5, this_year + 1)]
+  years_choices = [
+    {"label": str(y), "value": y}
+    for y in range(this_year - 5, this_year + 1)
+  ]
 ---
 id: rent_unpaid_month_year
 question: |
@@ -271,45 +277,82 @@ fields:
           "field": "unpaid_start_month",
           "label": "Start month",
           "datatype": "select",
-          "choices": months_to_calc
+          "choices": months_choices
         },
         {
           "field": "unpaid_start_year",
           "label": "Start year",
           "datatype": "select",
-          "choices": years_to_calc
+          "choices": years_choices
         },
         {
           "field": "unpaid_end_month",
           "label": "End month",
           "datatype": "select",
-          "choices": months_to_calc
+          "choices": months_choices
         },
         {
           "field": "unpaid_end_year",
           "label": "End year",
           "datatype": "select",
-          "choices": years_to_calc
+          "choices": years_choices
         }
       ]
 continue button field: set_unpaid_rent_month_year
 ---
-#id: set_months_to_calc
-#code: |
-#  from datetime import date
-#  start = date(unpaid_start_year, unpaid_start_month, 1)
-#  end   = date(unpaid_end_year,   unpaid_end_month,   1)
-#  months_to_calc = []
-#  current = start
-#  while current <= end:
-#      key = current.strftime("%Y_%m")
-#      label = current.strftime("%B %Y")
-#      months_to_calc.append((key, label))
-#      if current.month == 12:
-#          current = current.replace(year=current.year+1, month=1)
-#      else:
-#          current = current.replace(month=current.month+1)
-#continue button field: set_months_to_calc
+---
+id: set_months_to_calc
+code: |
+  from datetime import date
+  # Cast the dropdown strings to ints (day=1)
+  start = date(int(unpaid_start_year), int(unpaid_start_month), 1)
+  end   = date(int(unpaid_end_year),   int(unpaid_end_month),   1)
+  months_to_calc = []
+  current = start
+  while current <= end:
+      key = current.strftime("%Y_%m")
+      label = current.strftime("%B %Y")
+      months_to_calc.append((key, label))
+      # Advance one month
+      if current.month == 12:
+          current = current.replace(year=current.year+1, month=1)
+      else:
+          current = current.replace(month=current.month+1)
+continue button field: set_months_to_calc
+---
+id: rent_worksheet
+question: |
+  For each month below, you’ll see:
+
+  1. The month name as a heading.  
+  2. A “Rent due” box prefilled the amount of rent due each month.
+  3. A “Rent paid” box for the amount of rent that was actually received. 
+fields:
+  - code: |
+      [
+        field_def
+        for key, label in months_to_calc
+        for field_def in [
+          {
+            "note": label,
+            "item grid": {"width": 12, "breakpoint": "sm"}
+          },
+          {
+            "field": f"rent_due_{key}",
+            "label": "Rent due",
+            "datatype": "currency",
+            "default": monthly_rent,
+            "item grid": {"width": 6, "breakpoint": "sm"}
+          },
+          {
+            "field": f"rent_paid_{key}",
+            "label": "Rent paid",
+            "datatype": "currency",
+            "item grid": {"width": 6, "breakpoint": "sm"}
+          }
+        ]
+      ]
+continue button field: rent_worksheet
 ---
 id: rent_info_gather
 question: |
@@ -321,35 +364,6 @@ fields:
     datatype: currency
   - "when was the last month rent was paid for?": rent_paid_through
     datatype: date
----
----
-id: rent_worksheet
-question: |
-  Enter the rent paid (if any) for each month in the unpaid period.
-fields:
-  - code: |
-      [
-        field
-        for key, label in months_to_calc
-        for field in [
-          {
-            "field": f"month_label_{key}",
-            "label": label,
-            "datatype": "text",
-            "item grid": {"width": 3, "breakpoint": "sm"}
-          },
-          {
-            "field": f"rent_paid_{key}",
-            "label": "Rent paid",
-            "datatype": "currency",
-            "item grid": {"width": 3, "breakpoint": "sm"}
-          }
-        ]
-      ]
-show if:
-continue button field: rent_worksheet
----
-
 ---
 id: summary_process_check
 question: |
