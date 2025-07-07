@@ -850,7 +850,7 @@ attachment:
       - "parties_vacated": ${ parties_vacated }
       - "vacated_parties": ${ comma_and_list(vacated_parties) }
       - "bbo_number": ${ bbo_number }
-      - "users1_full_name__2": ${ users1_full_name }
+      - "users1_full_name__2": ${ users[0].name.full() }
       - "signature_date": ${ signature_date }
       - "users1_signature": ${ users[0].signature_if_final(i) }
 ---
