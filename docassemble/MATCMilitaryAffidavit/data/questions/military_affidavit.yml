@@ -55,9 +55,9 @@ code: |
   if trial_court.department == "Housing Court":
     summary_process_check
   set_all_military_statuses
-  if any([party.military_status == "past" for party in users.union(other_parties + additional_parties)]):
+  if any([party.military_status == "past" for party in other_parties + additional_parties]):
     set_concluded_service_dates
-  if any([party.military_status == "unknown" for party in users.union(other_parties + additional_parties)]):
+  if any([party.military_status == "unknown" for party in other_parties + additional_parties]):
     bond_agreement_i_understand
   review_military_status
   if summary_process_check:
@@ -203,8 +203,7 @@ fields:
           "datatype": "radio",
           "choices": military_status_labels
         }
-        for party
-        in sorted(other_parties + additional_parties)
+        for party in sorted(other_parties + additional_parties)
       ]
 ---
 template: explain_military_service
@@ -242,7 +241,7 @@ fields:
         }
         for party
         in
-        sorted(users.union(other_parties + additional_parties))          
+        sorted(other_parties + additional_parties)          
         if party.military_status == "past"
       ]
 continue button field: set_concluded_service_dates
@@ -443,7 +442,7 @@ subquestion: |
 continue button field: review_military_status
 ---
 table: all_party_status_review_table
-rows: users.union(other_parties + additional_parties)
+rows: other_parties + additional_parties
 columns:
   - Name: |
       row_item.name_full()
