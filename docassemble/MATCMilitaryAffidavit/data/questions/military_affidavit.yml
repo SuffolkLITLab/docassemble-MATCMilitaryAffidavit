@@ -71,6 +71,7 @@ code: |
       monthly_rent
       set_unpaid_rent_month_year
       rent_worksheet
+      months_unpaid_total
     rent_paid_through
   if summary_process_check:
     uniform_seen
@@ -375,6 +376,20 @@ fields:
   - "when was the last month rent was paid for?": rent_paid_through
     datatype: date
 ---
+id: calculate_monthly_unpaid_totals
+code: |
+  months_unpaid_total = 0
+  for i, (key, label) in enumerate(months_to_calc):
+      # calculate what’s still owed
+      unpaid = monthly_rent - (locals().get(f"rent_paid_{key}", 0) or 0)
+      # dynamically set month1, month1_unpaid, month2, month2_unpaid, …
+      vars()[f"month{i+1}"] = label
+      vars()[f"month{i+1}_unpaid"] = unpaid
+      months_unpaid_total += unpaid
+  # expose the grand total
+  vars()["months_unpaid_total"] = months_unpaid_total
+---
+
 id: summary_process_check
 question: |
   Is this case a Summary Process (eviction) case?
@@ -826,6 +841,7 @@ attachment:
           % else:
             ${ other_parties }
           % endif
+
         % endif
 
     - "respondents": |
@@ -859,11 +875,66 @@ attachment:
     - "vacated_date": ${ vacated_date.format() }
     - "parties_vacated": ${ parties_vacated }
     - "vacated_parties": ${ comma_and_list(vacated_parties) }
-
     - "bbo_number": ${ bbo }
     - "users1_full_name__2": ${ users[0].name_full() }
     - "signature_date": ${ signature_date }
     - "users1_signature": ${ users[0].signature_if_final(i) }
+    - "users1_name_full__1": ${ users[0] }
+    - "not_service": ${ not_service }
+    - "in_service": ${ in_service }
+    - "serving_parties": ${ serving_parties }
+    - "unable_service": ${ unable_service }
+    - "unsure_serving_parties": ${ unsure_serving_parties }0
+    - "month1_unpaid": ${ month1_unpaid }
+    - "month1": ${ month1 }
+    - "month2_unpaid": ${ month2_unpaid }
+    - "month2": ${ month2 }
+    - "month3_unpaid": ${ month3_unpaid }
+    - "month3": ${ month3 }
+    - "month4_unpaid": ${ month4_unpaid }
+    - "month4": ${ month4 }
+    - "month5_unpaid": ${ month5_unpaid }
+    - "month5": ${ month5 }
+    - "month6_unpaid": ${ month6_unpaid }
+    - "month6": ${ month6 }
+    - "month7": ${ month7 }
+    - "month7_unpaid": ${ month7_unpaid }
+    - "month8": ${ month8 }
+    - "month8_unpaid": ${ month8_unpaid }
+    - "month9": ${ month9 }
+    - "month9_unpaid": ${ month9_unpaid }
+    - "month10": ${ month10 }
+    - "month10_unpaid": ${ month10_unpaid }
+    - "month11": ${ month11 }
+    - "month11_unpaid": ${ month11_unpaid }
+    - "month12_unpaid": ${ month12_unpaid }
+    - "month12": ${ month12 }
+    - "month13": ${ month13 }
+    - "month13_unpaid": ${ month13_unpaid }
+    - "month14": ${ month14 }
+    - "month14_unpaid": ${ month14_unpaid }
+    - "month15_unpaid": ${ month15_unpaid }
+    - "month15": ${ month15 }
+    - "month16_unpaid": ${ month16_unpaid }
+    - "month16": ${ month16 }
+    - "month17": ${ month17 }
+    - "month17_unpaid": ${ month17_unpaid }
+    - "month18": ${ month18 }
+    - "month18_unpaid": ${ month18_unpaid }
+    - "month19_unpaid": ${ month19_unpaid }
+    - "month19": ${ month19 }
+    - "month20": ${ month20 }
+    - "month20_unpaid": ${ month20_unpaid }
+    - "month21": ${ month21 }
+    - "month21_unpaid": ${ month21_unpaid }
+    - "month22": ${ month22 }
+    - "month22_unpaid": ${ month22_unpaid }
+    - "month23": ${ month23 }
+    - "month23_unpaid": ${ month23_unpaid }
+    - "month24": ${ month24 }
+    - "month24_unpaid": ${ month24_unpaid }
+    - "months_total": ${ months_total }
+    - "months_unpaid_total": ${ months_unpaid_total }
 ---
 need:
   - military_affidavit_case_name
