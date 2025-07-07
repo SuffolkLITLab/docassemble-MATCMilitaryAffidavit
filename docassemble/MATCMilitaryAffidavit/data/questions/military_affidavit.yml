@@ -65,6 +65,11 @@ code: |
     set_vacated_status
     vacated_parties
   if summary_process_check:
+    use_rent_worksheet
+    if use_rent_worksheet:
+      monthly_rent
+      set_unpaid_rent_month_year
+      rent_worksheet
     rent_paid_through
   if summary_process_check:
     uniform_seen
@@ -231,6 +236,124 @@ fields:
       ]
 continue button field: set_concluded_service_dates
 ---
+id: ask_use_rent_worksheet
+question: |
+  Would you like to use the rent worksheet on the form to itemize each month’s rent and payments?
+subquestion: |
+  If you choose “Yes,” you’ll get a table where you can enter the rent due and amount paid for each month, and we’ll calculate the unpaid total for you.
+fields:
+  - "Use rent worksheet": use_rent_worksheet
+    datatype: yesnoradio
+---
+id: montly_rent
+question: |
+  For the rent worksheet:
+  please input the amount of the montly rent. If the rent was not the same every month you can change it later/
+fields:
+  - "Monthly rent amount": monthly_rent
+    datatype: currency
+---
+id: rent_unpaid_month_year_prep
+code: |
+  import calendar
+  from datetime import date
+  months_choices = [
+    {"label": calendar.month_name[m], "value": m}
+    for m in range(1, 13)
+  ]
+  this_year = date.today().year
+  years_choices = [
+    {"label": str(y), "value": y}
+    for y in range(this_year - 5, this_year + 1)
+  ]
+---
+id: rent_unpaid_month_year
+question: |
+  For the rent worksheet, select the first and last month rent was not paid.
+fields:
+  - code: |
+      [
+        {
+          "field": "unpaid_start_month",
+          "label": "Start month",
+          "datatype": "select",
+          "choices": months_choices
+        },
+        {
+          "field": "unpaid_start_year",
+          "label": "Start year",
+          "datatype": "select",
+          "choices": years_choices
+        },
+        {
+          "field": "unpaid_end_month",
+          "label": "End month",
+          "datatype": "select",
+          "choices": months_choices
+        },
+        {
+          "field": "unpaid_end_year",
+          "label": "End year",
+          "datatype": "select",
+          "choices": years_choices
+        }
+      ]
+continue button field: set_unpaid_rent_month_year
+---
+---
+id: set_months_to_calc
+code: |
+  from datetime import date
+  # Cast the dropdown strings to ints (day=1)
+  start = date(int(unpaid_start_year), int(unpaid_start_month), 1)
+  end   = date(int(unpaid_end_year),   int(unpaid_end_month),   1)
+  months_to_calc = []
+  current = start
+  while current <= end:
+      key = current.strftime("%Y_%m")
+      label = current.strftime("%B %Y")
+      months_to_calc.append((key, label))
+      # Advance one month
+      if current.month == 12:
+          current = current.replace(year=current.year+1, month=1)
+      else:
+          current = current.replace(month=current.month+1)
+continue button field: set_months_to_calc
+---
+id: rent_worksheet
+question: |
+  For each month below, you’ll see:
+
+  1. The month name as a heading.  
+  2. A “Rent due” box prefilled the amount of rent due each month.
+  3. A “Rent paid” box for the amount of rent that was actually received. 
+fields:
+  - code: |
+      [
+        field_def
+        for key, label in months_to_calc
+        for field_def in [
+          {
+            "note": label,
+            "item grid": {"width": 12, "breakpoint": "sm"}
+          },
+          {
+            "field": f"rent_due_{key}",
+            "label": "Rent due",
+            "datatype": "currency",
+            "default": monthly_rent,
+            "item grid": {"width": 6, "breakpoint": "sm"}
+          },
+          {
+            "field": f"rent_paid_{key}",
+            "label": "Rent paid",
+            "datatype": "currency",
+            "item grid": {"width": 6, "breakpoint": "sm"}
+          }
+        ]
+      ]
+continue button field: rent_worksheet
+---
 id: rent_info_gather
 question: |
   How much rent was paid and how much was not paid?
@@ -358,8 +481,6 @@ code: |
   vacated_parties = [party.name_full() for party in other_parties if getattr(party, "vacated", None) is True]
   parties_vacated = len(vacated_parties) > 0
   premise_occupy = any(getattr(party, "vacated", None) is False for party in other_parties)
----
-
 ---
 id: your name
 sets:
