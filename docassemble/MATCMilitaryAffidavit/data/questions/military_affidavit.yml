@@ -45,8 +45,9 @@ id: interview_order_military_affidavit
 code: |
   # Set the allowed courts for this interview
   form_filled_by_attorney
-  bbo
-  user_ask_role
+  user_role
+  if user_role == "I am an attorney":
+    bbo
   users.gather()
   other_parties.gather()
   additional_parties.gather()
@@ -118,6 +119,16 @@ subquestion: |
   * you searched the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
     to find out their military status
 ---
+id: attorney or pro se (user role)
+question: |
+  What is your role in this case?
+fields: 
+- no label: user_role
+  input type: radio 
+  choices: 
+  - "I am an attorney"
+  - "I am a self represented (pro se) litigant"
+---
 id: What is your BBO number
 question: |
   What is your BBO number?
@@ -171,7 +182,7 @@ id: select all statuses
 question: |
   Select the current **military service** of **each** party in this case
 subquestion: |
-  For each party, including yourself:
+  For each defendant:
 
   * If they are currently serving active duty in the military, answer "Yes".
   * If they are not serving in the military, answer "No"
@@ -193,7 +204,7 @@ fields:
           "choices": military_status_labels
         }
         for party
-        in sorted(users.union(other_parties + additional_parties))
+        in sorted(other_parties + additional_parties)
       ]
 ---
 template: explain_military_service
