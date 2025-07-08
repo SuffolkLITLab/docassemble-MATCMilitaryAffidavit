@@ -445,6 +445,28 @@ content: |
   The bond is only required if the other party does not show up in court
   and loses "by default".
 ---
+code: |
+  # build a single list of all parties
+  all_parties = list(users.union(other_parties + additional_parties))
+
+  # split them out by status
+  serving_list = [p.name_full() for p in all_parties if p.military_status == 'yes']
+  past_list    = [p.name_full() for p in all_parties if p.military_status == 'past']
+  unsure_list  = [p.name_full() for p in all_parties if p.military_status == 'unknown']
+  no_list      = [p.name_full() for p in all_parties if p.military_status == 'no']
+
+  # now expose both the raw lists (joined as comma‐strings) and booleans
+  from docassemble.base.util import comma_and_list
+  serving_parties        = comma_and_list(serving_list)
+  unable_service         = comma_and_list(past_list)
+  unsure_serving_parties = comma_and_list(unsure_list)
+  not_service            = comma_and_list(no_list)
+
+  in_service     = bool(serving_list)
+  # if you ever need a “has any no’s” flag:
+  has_not_service = bool(no_list)
+
+---
 id: confirm serving party status
 question: |
   Confirm the military status of each party
