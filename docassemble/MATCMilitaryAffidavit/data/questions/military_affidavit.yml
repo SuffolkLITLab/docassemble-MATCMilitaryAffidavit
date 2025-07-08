@@ -844,7 +844,7 @@ attachment:
           % if user_ask_role == "defendant":
           ${ users }
           % else:
-          ${ other_parties }
+          ${ other_parties.short_list(limit=2) }
           % endif
       - "users1_name_full__1": ${ users[0] }
       - "not_service": ${ not_service }
@@ -956,7 +956,7 @@ attachment:
           % if user_ask_role == "defendant":
           ${ users }
           % else:
-          ${ other_parties }
+          ${ other_parties.short_list(limit=2) }
           % endif
       - "users1_name_full__1": |
           ${ users[0] }
