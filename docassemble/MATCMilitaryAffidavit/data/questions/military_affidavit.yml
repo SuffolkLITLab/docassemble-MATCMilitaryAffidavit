@@ -631,15 +631,16 @@ review:
       % for item in additional_parties:
         * ${ item }
       % endfor
+
   - Edit: exhibit_attachment.exhibits.has_exhibits
     button: |
-      **Are the exhibits attached?**
-      
+      **Is the attachment included?**
+
       % if exhibit_attachment.exhibits.has_exhibits:
       Yes
       % elif not exhibit_attachment.exhibits.has_exhibits:
       No
-      % endif
+      % endif   
   - note: |
       **Supporting exhibits**:
       
@@ -702,7 +703,7 @@ review:
 id: revisit exhibit_attachment
 continue button field: exhibit_attachment.revisit
 question: |
-  Edit your supporting exhibits
+  Edit your supporting attachment
 subquestion: |
   ${ exhibit_attachment.exhibits.rearrange_exhibits_table }
 
