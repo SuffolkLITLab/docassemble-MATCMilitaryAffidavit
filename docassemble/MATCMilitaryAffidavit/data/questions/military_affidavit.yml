@@ -72,7 +72,7 @@ code: |
       set_unpaid_rent_month_year
       rent_worksheet
       months_unpaid_total
-    rent_paid_through
+    unpaid_rent
   if summary_process_check:
     uniform_seen
   # if len(serving_parties) < len(users) + len(other_parties) + len(additional_parties):
@@ -373,7 +373,7 @@ fields:
     datatype: currency
   - "paid rent": rent_paid
     datatype: currency
-  - "when was the last month rent was paid for?": rent_paid_through
+  - "when was the last month rent was paid for?": unpaid_rent_date
     datatype: date
 ---
 id: calculate_monthly_unpaid_totals
@@ -859,7 +859,7 @@ attachment:
       - "other_facts_text": ${ other_facts_text }
       - "rent_paid": ${ rent_paid }
       - "unpaid_rent": ${ unpaid_rent }
-      - "rent_paid_through": ${ rent_paid_through }
+      - "unpaid_rent_date": ${ unpaid_rent_date.format() }
       - "premise_occupy": ${ premise_occupy }
       - "vacated_date": ${ vacated_date.format() }
       - "parties_vacated": ${ parties_vacated }
