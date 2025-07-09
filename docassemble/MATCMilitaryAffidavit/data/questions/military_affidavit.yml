@@ -52,8 +52,7 @@ code: |
   other_parties.gather()
   additional_parties.gather()
   trial_court
-  if trial_court.department == "Housing Court":
-    summary_process_check
+  summary_process_check
   set_all_military_statuses
   if any([party.military_status == "past" for party in other_parties + additional_parties]):
     set_concluded_service_dates
