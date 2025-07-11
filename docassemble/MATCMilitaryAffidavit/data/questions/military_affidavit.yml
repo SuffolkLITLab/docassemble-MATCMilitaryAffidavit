@@ -389,7 +389,7 @@ code: |
 
 id: summary_process_check
 question: |
-  Is this case a Summary Process (eviction) case?
+  Is this case a summary process case (an eviction in Massachusetts)?
 subquestion: |
   A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court. 
   
