@@ -132,6 +132,7 @@ question: |
   What is your BBO number?
 fields:
   - "BBO": bbo
+    datatype: integer
     maxlength: 41
 ---
 id: explanation diligent search
