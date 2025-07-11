@@ -52,19 +52,18 @@ code: |
   other_parties.gather()
   additional_parties.gather()
   trial_court
-  summary_process_check
   set_all_military_statuses
   if any([party.military_status == "past" for party in other_parties + additional_parties]):
     set_concluded_service_dates
   if any([party.military_status == "unknown" for party in other_parties + additional_parties]):
     bond_agreement_i_understand
   review_military_status
-  if summary_process_check:
+  summary_process_check
+  if summary_process_check == True:
     vacated_status
-  if vacated_status:
-    set_vacated_status
-    vacated_parties
-  if summary_process_check:
+    if vacated_status:
+      set_vacated_status
+      vacated_parties
     use_rent_worksheet
     if use_rent_worksheet:
       monthly_rent
@@ -72,7 +71,6 @@ code: |
       rent_worksheet
       months_unpaid_total
     unpaid_rent
-  if summary_process_check:
     uniform_seen
   # if len(serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   ask_concluded_service_parties
@@ -489,7 +487,7 @@ columns:
 code: |
   form_filled_by_attorney = bool(len(attorneys))    
 ---
-id: Determine if any of the parties have vacated the premsises
+id: vacated status question 
 question: |
   Have any of the tenants vacated (moved out) of the property?
   
