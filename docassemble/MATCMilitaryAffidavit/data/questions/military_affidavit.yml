@@ -44,10 +44,10 @@ comment: |
 id: interview_order_military_affidavit
 code: |
   # Set the allowed courts for this interview
-  #form_filled_by_attorney
   user_role
-  if user_role == "I am an attorney":
-    bbo
+  if user_role == "attorney":
+   attorneys.there_are_any = True
+   bbo
   users.gather()
   other_parties.gather()
   additional_parties.gather()
@@ -117,22 +117,21 @@ subquestion: |
   * you searched the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
     to find out their military status
 ---
-id: attorney or pro se (user role)
+id: User Type
 question: |
-  What is your role in this case?
-fields: 
-- no label: user_role
-  input type: radio 
-  choices: 
-  - "I am an attorney"
-  - "I am a self represented (pro se) litigant"
----
-id: What is your BBO number
-question: |
-  What is your BBO number?
+  Who is filling out this form?
 fields:
-  - "BBO": bbo
-    maxlength: 41
+  - "I am": user_role
+    datatype: radio
+    choices:
+      - Representing myself: user
+      - An attorney: attorney
+  - BBO number: bbo
+    maxlength: 10
+    datatype: number
+    show if:
+      variable: user_role
+      is: "attorney"
 ---
 id: explanation diligent search
 question: |
@@ -398,7 +397,7 @@ fields:
   - "Is this a Summary Process (eviction) case": summary_process_check
     datatype: yesnoradio
 ---
-id: R10facts
+id: R10 facts supporting knowledge of service 
 question: |
   Facts supporting knowledge of service status
 fields:
@@ -413,6 +412,19 @@ fields:
   - "Other facts text": other_facts_text
     maxlength: 120
     show if: other_facts
+---
+code: |
+  # Assume we're only checking one defendant at a time (can be adjusted for lists)
+  for party in other_parties + additional_parties:
+      if uniform_seen:
+          party.military_status = "Active Duty"
+      elif civillian_seen or defendant_acknowledge:
+          party.military_status = "Not Active Duty"
+      elif other_facts and other_facts_text.strip() != "":
+          party.military_status = "Unknown"
+      else:
+          party.military_status = "Unknown"
+
 ---
 id: unsure military service
 question: |
@@ -484,9 +496,6 @@ columns:
   - In active service?: |
       next((k for d in military_status_labels for k, v in d.items() if v == row_item.military_status), "")
 ---
-code: |
-  form_filled_by_attorney = bool(len(attorneys))    
----
 id: vacated status question 
 question: |
   Have any of the tenants vacated (moved out) of the property?
@@ -536,7 +545,7 @@ sets:
     - users[0].name.middle
     - users[0].name.suffix
 question:  |
-  % if form_filled_by_attorney:
+  % if user_role == "attorney":
   What is your client's name?
   % else:
   What is your name?
@@ -579,6 +588,21 @@ subquestion: |
 fields:
   - code: |
       additional_parties[i].name_fields()
+---
+code: |
+  serving_parties = DAList()
+  concluded_service_parties = DAList()
+  unsure_serving_parties = DAList()
+
+  for party in users + other_parties + additional_parties:
+      if hasattr(party, 'military_status'):
+          if party.military_status == "Active Duty":
+              serving_parties.append(party)
+          elif party.military_status == "Not Active Duty":
+              concluded_service_parties.append(party)
+          elif party.military_status == "Unknown":
+              unsure_serving_parties.append(party)
+
 ---
 id: supporting the affidavit
 question: |
@@ -835,7 +859,7 @@ code: |
 
 ---
 attachment:
-  name: military affidavitr 10
+  name: military affidavit rule 10
   filename: military_affidavitr_10
   variable name: military_affidavitr_10_attachment[i]
   skip undefined: True
