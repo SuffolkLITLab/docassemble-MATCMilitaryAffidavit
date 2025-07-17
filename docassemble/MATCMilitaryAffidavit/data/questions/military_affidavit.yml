@@ -64,13 +64,12 @@ code: |
     if vacated_status:
       set_vacated_status
       vacated_parties
-    use_rent_worksheet
-    if use_rent_worksheet:
-      monthly_rent
-      set_unpaid_rent_month_year
-      rent_worksheet
-      months_unpaid_total
-    unpaid_rent
+    #use_rent_worksheet
+    monthly_rent
+    set_unpaid_rent_month_year
+    rent_worksheet
+    months_unpaid_total
+    #unpaid_rent
     uniform_seen
   # if len(serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   ask_concluded_service_parties
@@ -244,14 +243,14 @@ fields:
       ]
 continue button field: set_concluded_service_dates
 ---
-id: ask_use_rent_worksheet
-question: |
-  Would you like to use the rent worksheet on the form to itemize each month’s rent and payments?
-subquestion: |
-  If you choose “Yes,” you’ll get a table where you can enter the rent due and amount paid for each month, and we’ll calculate the unpaid total for you.
-fields:
-  - "Use rent worksheet": use_rent_worksheet
-    datatype: yesnoradio
+#id: ask_use_rent_worksheet
+#question: |
+#  Would you like to use the rent worksheet on the form to itemize each #month’s rent and payments?
+#subquestion: |
+#  If you choose “Yes,” you’ll get a table where you can enter the rent #due and amount paid for each month, and we’ll calculate the unpaid total #for you.
+#fields:
+#  - "Use rent worksheet": use_rent_worksheet
+#    datatype: yesnoradio
 ---
 id: montly_rent
 question: |
@@ -315,6 +314,8 @@ code: |
   # Cast the dropdown strings to ints (day=1)
   start = date(int(unpaid_start_year), int(unpaid_start_month), 1)
   end   = date(int(unpaid_end_year),   int(unpaid_end_month),   1)
+  # Store the first month and year combo as a label
+  first_month_year = start.strftime("%B %Y")
   months_to_calc = []
   current = start
   while current <= end:
@@ -362,31 +363,42 @@ fields:
       ]
 continue button field: rent_worksheet
 ---
-id: rent_info_gather
-question: |
-  How much rent was paid and how much was not paid?
-fields:
-  - "unpaid rent": unpaid_rent
-    datatype: currency
-  - "paid rent": rent_paid
-    datatype: currency
-  - "when was the last month rent was paid for?": unpaid_rent_date
-    datatype: date
+#id: rent_info_gather
+#question: |
+#  How much rent was paid and how much was not paid?
+#fields:
+#  - "unpaid rent": unpaid_rent
+#    datatype: currency
+#  - "paid rent": rent_paid
+#    datatype: currency
+#  - "when was the last month rent was paid for?": unpaid_rent_date
+#    datatype: date
 ---
-id: calculate_monthly_unpaid_totals
+id: calculate_monthly_unpaid_and_paid
 code: |
+  # initialize running totals
   months_unpaid_total = 0
-  for i, (key, label) in enumerate(months_to_calc):
-      # calculate what’s still owed
-      unpaid = monthly_rent - (locals().get(f"rent_paid_{key}", 0) or 0)
-      # dynamically set month1, month1_unpaid, month2, month2_unpaid, …
-      vars()[f"month{i+1}"] = label
-      vars()[f"month{i+1}_unpaid"] = unpaid
-      months_unpaid_total += unpaid
-  # expose the grand total
-  vars()["months_unpaid_total"] = months_unpaid_total
----
+  months_paid_total = 0
 
+  for i, (key, label) in enumerate(months_to_calc):
+      # look up amount paid this month (defaults to 0)
+      paid = locals().get(f"rent_paid_{key}", 0) or 0
+      # calculate what’s still owed
+      unpaid = monthly_rent - paid
+
+      # dynamically set month1, month1_paid, month1_unpaid, month2, month2_paid, ...
+      vars()[f"month{i+1}"] = label
+      vars()[f"month{i+1}_paid"] = paid
+      vars()[f"month{i+1}_unpaid"] = unpaid
+
+      # add to grand totals
+      months_paid_total += paid
+      months_unpaid_total += unpaid
+
+  # expose the grand totals
+  vars()["months_unpaid_total"] = months_unpaid_total
+  vars()["months_paid_total"] = months_paid_total
+---
 id: summary_process_check
 question: |
   Is this case a Summary Process (eviction) case?
@@ -877,9 +889,9 @@ attachment:
       - "defendant_acknowledge": ${ defendant_acknowledge }
       - "other_facts": ${ other_facts }
       - "other_facts_text": ${ other_facts_text }
-      - "rent_paid": ${ rent_paid }
-      - "unpaid_rent": ${ unpaid_rent }
-      - "unpaid_rent_date": ${ unpaid_rent_date.format() }
+      - "rent_paid": ${ months_paid_total }
+      - "unpaid_rent": ${ months_unpaid_total }
+      - "unpaid_rent_date": ${ first_month_year }
       - "premise_occupy": ${ premise_occupy }
       - "vacated_date": ${ vacated_date.format() }
       - "parties_vacated": ${ parties_vacated }
