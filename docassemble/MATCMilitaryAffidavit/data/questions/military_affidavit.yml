@@ -415,17 +415,18 @@ fields:
 ---
 id: R10facts
 question: |
-  Facts supporting knowledge of service status
+  Do you have any facts that show the defendant's military service status?
+  Please check all that aply:
 fields:
-  - "Uniform seen": uniform_seen
+  - "I saw the defendant in a military uniform": uniform_seen
     datatype: yesno
-  - "Civillian seen": civillian_seen
+  - "I saw the defendant in civilian clothing": civillian_seen
     datatype: yesno
-  - "Defendant acknowledge": defendant_acknowledge
+  - "The defendant told me about their military status": defendant_acknowledge
     datatype: yesno
-  - "Other facts": other_facts
+  - "I have other facts or reasons that show the defendant(s) military status": other_facts
     datatype: yesno
-  - "Other facts text": other_facts_text
+  - "Please describe the other facts": other_facts_text
     maxlength: 120
     show if: other_facts
 ---
