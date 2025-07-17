@@ -255,10 +255,10 @@ fields:
 ---
 id: montly_rent
 question: |
-  For the rent worksheet:
-  please input the amount of the montly rent. If the rent was not the same every month you can change it later/
+ Please enter the dollar amount that was due each month for rent, this amount can be edited for each month later.
+
 fields:
-  - "Monthly rent amount": monthly_rent
+  - "Rent:": monthly_rent
     datatype: currency
 ---
 id: rent_unpaid_month_year_prep
@@ -277,31 +277,31 @@ code: |
 ---
 id: rent_unpaid_month_year
 question: |
-  For the rent worksheet, select the first and last month rent was not paid.
+   Which month and year was rent first unpaid, and which month and year was it last unpaid?
 fields:
   - code: |
       [
         {
           "field": "unpaid_start_month",
-          "label": "Start month",
+          "label": "First month",
           "datatype": "select",
           "choices": months_choices
         },
         {
           "field": "unpaid_start_year",
-          "label": "Start year",
+          "label": "Year",
           "datatype": "select",
           "choices": years_choices
         },
         {
           "field": "unpaid_end_month",
-          "label": "End month",
+          "label": "Last month",
           "datatype": "select",
           "choices": months_choices
         },
         {
           "field": "unpaid_end_year",
-          "label": "End year",
+          "label": "Year",
           "datatype": "select",
           "choices": years_choices
         }
@@ -330,11 +330,7 @@ continue button field: set_months_to_calc
 ---
 id: rent_worksheet
 question: |
-  For each month below, you’ll see:
-
-  1. The month name as a heading.  
-  2. A “Rent due” box prefilled the amount of rent due each month.
-  3. A “Rent paid” box for the amount of rent that was actually received. 
+ For each month below, please verify the month name heading, review the prefilled Rent due amount, and enter the actual amount in the Rent paid box. 
 fields:
   - code: |
       [
