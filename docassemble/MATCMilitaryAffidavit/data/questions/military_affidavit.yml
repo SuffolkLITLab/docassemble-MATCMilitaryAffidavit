@@ -277,7 +277,7 @@ code: |
 ---
 id: rent_unpaid_month_year
 question: |
-   Which month and year was rent first unpaid, and which month and year was it last unpaid?
+   After filing the lawsuit, which month and year was rent first unpaid, and which month and year was it last unpaid?
 fields:
   - code: |
       [
