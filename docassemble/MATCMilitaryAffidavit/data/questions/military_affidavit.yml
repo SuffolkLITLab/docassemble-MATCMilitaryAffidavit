@@ -87,9 +87,10 @@ code: |
   # if len(serving_parties) + len(concluded_service_parties) + len(unsure_serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   confirm_not_serving_parties
   docket_number
-  has_used_scra_site
-  # if exhibit_attachment.exhibits.has_exhibits:
-  #  exhibit_attachment.exhibits.gather()
+  if summary_process_check == False:
+    has_used_scra_site
+  if exhibit_attachment.exhibits.has_exhibits:
+    exhibit_attachment.exhibits.gather()
   signature_date
   users[0].signature
   military_affidavit_case_name
