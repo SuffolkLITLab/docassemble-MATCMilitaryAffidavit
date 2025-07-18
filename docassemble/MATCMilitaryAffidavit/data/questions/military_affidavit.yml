@@ -27,12 +27,17 @@ objects:
   - concluded_service_parties: ALPeopleList.using(auto_gather=False, gathered=True)
   - military_affidavit_attachment: ALDocument.using(title="Military Affidavit", filename="military_affidavit", has_addendum=False)
   - military_affidavitr_10_attachment: ALDocument.using(title="Military Affidavit R10", filename="military_affidavitr_10", has_addendum=False)
-  - exhibit_attachment: ALExhibitDocument.using(
-          title="Exhibits",
-          filename="exhibits",
-          add_page_numbers=True,
-          include_table_of_contents=True,
-          include_exhibit_cover_pages=True,
+  # - exhibit_attachment: ALExhibitDocument.using(
+  #        title="Exhibits",
+  #       filename="exhibits",
+  #        add_page_numbers=True,
+  #       include_table_of_contents=True,
+  #         include_exhibit_cover_pages=True,
+  #     )
+
+  - military_affidavit_proof_attachment: ALDocumentUpload.using(
+          title="Military Affidavit Proof",
+          filename="Military Affidavit Proof",
         )
 ---
 sections:
@@ -44,10 +49,10 @@ comment: |
 id: interview_order_military_affidavit
 code: |
   # Set the allowed courts for this interview
-  #form_filled_by_attorney
   user_role
-  if user_role == "I am an attorney":
-    bbo
+  if user_role == "attorney":
+   attorneys.there_are_any = True
+   bbo
   users.gather()
   other_parties.gather()
   additional_parties.gather()
@@ -64,13 +69,12 @@ code: |
     if vacated_status:
       set_vacated_status
       vacated_parties
-    use_rent_worksheet
-    if use_rent_worksheet:
-      monthly_rent
-      set_unpaid_rent_month_year
-      rent_worksheet
-      months_unpaid_total
-    unpaid_rent
+    #use_rent_worksheet
+    monthly_rent
+    set_unpaid_rent_month_year
+    rent_worksheet
+    months_unpaid_total
+    #unpaid_rent
     uniform_seen
   # if len(serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   ask_concluded_service_parties
@@ -84,7 +88,8 @@ code: |
   #   confirm_not_serving_parties
   in_service
   docket_number
-  has_used_scra_site
+  if summary_process_check == False:
+    has_used_scra_site
   if exhibit_attachment.exhibits.has_exhibits:
     exhibit_attachment.exhibits.gather()
   signature_date
@@ -118,22 +123,21 @@ subquestion: |
   * you searched the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
     to find out their military status
 ---
-id: attorney or pro se (user role)
+id: User Type
 question: |
-  What is your role in this case?
-fields: 
-- no label: user_role
-  input type: radio 
-  choices: 
-  - "I am an attorney"
-  - "I am a self represented (pro se) litigant"
----
-id: What is your BBO number
-question: |
-  What is your BBO number?
+  Who is filling out this form?
 fields:
-  - "BBO": bbo
-    maxlength: 41
+  - "I am": user_role
+    datatype: radio
+    choices:
+      - Representing myself: user
+      - An attorney: attorney
+  - BBO number: bbo
+    maxlength: 10
+    datatype: number
+    show if:
+      variable: user_role
+      is: "attorney"
 ---
 id: explanation diligent search
 question: |
@@ -245,21 +249,21 @@ fields:
       ]
 continue button field: set_concluded_service_dates
 ---
-id: ask_use_rent_worksheet
-question: |
-  Would you like to use the rent worksheet on the form to itemize each month’s rent and payments?
-subquestion: |
-  If you choose “Yes,” you’ll get a table where you can enter the rent due and amount paid for each month, and we’ll calculate the unpaid total for you.
-fields:
-  - "Use rent worksheet": use_rent_worksheet
-    datatype: yesnoradio
+#id: ask_use_rent_worksheet
+#question: |
+#  Would you like to use the rent worksheet on the form to itemize each #month’s rent and payments?
+#subquestion: |
+#  If you choose “Yes,” you’ll get a table where you can enter the rent #due and amount paid for each month, and we’ll calculate the unpaid total #for you.
+#fields:
+#  - "Use rent worksheet": use_rent_worksheet
+#    datatype: yesnoradio
 ---
 id: montly_rent
 question: |
-  For the rent worksheet:
-  please input the amount of the montly rent. If the rent was not the same every month you can change it later/
+ Please enter the dollar amount that was due each month for rent, this amount can be edited for each month later.
+
 fields:
-  - "Monthly rent amount": monthly_rent
+  - "Rent:": monthly_rent
     datatype: currency
 ---
 id: rent_unpaid_month_year_prep
@@ -278,31 +282,31 @@ code: |
 ---
 id: rent_unpaid_month_year
 question: |
-  For the rent worksheet, select the first and last month rent was not paid.
+   After filing the lawsuit, which month and year was rent first unpaid, and which month and year was it last unpaid?
 fields:
   - code: |
       [
         {
           "field": "unpaid_start_month",
-          "label": "Start month",
+          "label": "First month",
           "datatype": "select",
           "choices": months_choices
         },
         {
           "field": "unpaid_start_year",
-          "label": "Start year",
+          "label": "Year",
           "datatype": "select",
           "choices": years_choices
         },
         {
           "field": "unpaid_end_month",
-          "label": "End month",
+          "label": "Last month",
           "datatype": "select",
           "choices": months_choices
         },
         {
           "field": "unpaid_end_year",
-          "label": "End year",
+          "label": "Year",
           "datatype": "select",
           "choices": years_choices
         }
@@ -316,6 +320,8 @@ code: |
   # Cast the dropdown strings to ints (day=1)
   start = date(int(unpaid_start_year), int(unpaid_start_month), 1)
   end   = date(int(unpaid_end_year),   int(unpaid_end_month),   1)
+  # Store the first month and year combo as a label
+  first_month_year = start.strftime("%B %Y")
   months_to_calc = []
   current = start
   while current <= end:
@@ -331,11 +337,7 @@ continue button field: set_months_to_calc
 ---
 id: rent_worksheet
 question: |
-  For each month below, you’ll see:
-
-  1. The month name as a heading.  
-  2. A “Rent due” box prefilled the amount of rent due each month.
-  3. A “Rent paid” box for the amount of rent that was actually received. 
+ For each month below, please verify the month name heading, review the prefilled Rent due amount, and enter the actual amount in the Rent paid box. 
 fields:
   - code: |
       [
@@ -363,6 +365,7 @@ fields:
       ]
 continue button field: rent_worksheet
 ---
+
 id: rent_info_gather
 question: |
   Please provide the following information:
@@ -374,22 +377,34 @@ fields:
   - "What was the last month for which rent was paid?": unpaid_rent_date
     datatype: date
 ---
-id: calculate_monthly_unpaid_totals
+id: calculate_monthly_unpaid_and_paid
 code: |
+  # initialize running totals
   months_unpaid_total = 0
-  for i, (key, label) in enumerate(months_to_calc):
-      # calculate what’s still owed
-      unpaid = monthly_rent - (locals().get(f"rent_paid_{key}", 0) or 0)
-      # dynamically set month1, month1_unpaid, month2, month2_unpaid, …
-      vars()[f"month{i+1}"] = label
-      vars()[f"month{i+1}_unpaid"] = unpaid
-      months_unpaid_total += unpaid
-  # expose the grand total
-  vars()["months_unpaid_total"] = months_unpaid_total
----
+  months_paid_total = 0
 
+  for i, (key, label) in enumerate(months_to_calc):
+      # look up amount paid this month (defaults to 0)
+      paid = locals().get(f"rent_paid_{key}", 0) or 0
+      # calculate what’s still owed
+      unpaid = monthly_rent - paid
+
+      # dynamically set month1, month1_paid, month1_unpaid, month2, month2_paid, ...
+      vars()[f"month{i+1}"] = label
+      vars()[f"month{i+1}_paid"] = paid
+      vars()[f"month{i+1}_unpaid"] = unpaid
+
+      # add to grand totals
+      months_paid_total += paid
+      months_unpaid_total += unpaid
+
+  # expose the grand totals
+  vars()["months_unpaid_total"] = months_unpaid_total
+  vars()["months_paid_total"] = months_paid_total
+---
 id: summary_process_check
 question: |
+
   Is this case about removing someone from a home or apartment?
 subquestion: |
   A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court. 
@@ -399,21 +414,35 @@ fields:
   - "Is this a Summary Process (eviction) case": summary_process_check
     datatype: yesnoradio
 ---
-id: R10facts
+id: R10 facts supporting knowledge of service 
 question: |
-  Facts supporting knowledge of service status
+  Do you have any facts that show the defendant's military service status?
+  Please check all that aply:
 fields:
-  - "Uniform seen": uniform_seen
+  - "I saw the defendant in a military uniform": uniform_seen
     datatype: yesno
-  - "Civillian seen": civillian_seen
+  - "I saw the defendant in civilian clothing": civillian_seen
     datatype: yesno
-  - "Defendant acknowledge": defendant_acknowledge
+  - "The defendant told me about their military status": defendant_acknowledge
     datatype: yesno
-  - "Other facts": other_facts
+  - "I have other facts or reasons that show the defendant(s) military status": other_facts
     datatype: yesno
-  - "Other facts text": other_facts_text
+  - "Please describe the other facts": other_facts_text
     maxlength: 120
     show if: other_facts
+---
+code: |
+  # Assume we're only checking one defendant at a time (can be adjusted for lists)
+  for party in other_parties + additional_parties:
+      if uniform_seen:
+          party.military_status = "Active Duty"
+      elif civillian_seen or defendant_acknowledge:
+          party.military_status = "Not Active Duty"
+      elif other_facts and other_facts_text.strip() != "":
+          party.military_status = "Unknown"
+      else:
+          party.military_status = "Unknown"
+
 ---
 id: unsure military service
 question: |
@@ -487,9 +516,6 @@ columns:
   - In active service?: |
       next((k for d in military_status_labels for k, v in d.items() if v == row_item.military_status), "")
 ---
-code: |
-  form_filled_by_attorney = bool(len(attorneys))    
----
 id: vacated status question 
 question: |
   Have any of the tenants vacated (moved out) of the property?
@@ -539,7 +565,7 @@ sets:
     - users[0].name.middle
     - users[0].name.suffix
 question:  |
-  % if form_filled_by_attorney:
+  % if user_role == "attorney":
   What is your client's name?
   % else:
   What is your name?
@@ -583,6 +609,21 @@ fields:
   - code: |
       additional_parties[i].name_fields()
 ---
+code: |
+  serving_parties = DAList()
+  concluded_service_parties = DAList()
+  unsure_serving_parties = DAList()
+
+  for party in users + other_parties + additional_parties:
+      if hasattr(party, 'military_status'):
+          if party.military_status == "Active Duty":
+              serving_parties.append(party)
+          elif party.military_status == "Not Active Duty":
+              concluded_service_parties.append(party)
+          elif party.military_status == "Unknown":
+              unsure_serving_parties.append(party)
+
+---
 id: supporting the affidavit
 question: |
   How do you know the military status of the parties in this case?
@@ -595,7 +636,7 @@ fields:
   - Are you ready to attach a copy or screenshot now?: wants_to_attach_search_results
     datatype: yesnoradio
     show if: has_used_scra_site
-  - Attach a copy of the search results: used_scra_site_attachment
+  - Attach a copy of the search results: military_affidavit_proof_attachment.file
     datatype: file
     file css class: None
     accept: |
@@ -822,19 +863,6 @@ code: |
   # This is available to customize in other forms with more complex case name scenarios
   # Leave it undefined to use the default case name of petitioner v respondent or In the interests of respondent
   military_affidavit_case_name = ""
----
----
-code: |
-  if summary_process_check:
-      military_affidavitr_10_attachment.enabled = True
-      military_affidavit_attachment.enabled = False
-      al_user_bundle.elements = [military_affidavitr_10_attachment]
-      al_court_bundle.elements = [military_affidavitr_10_attachment]
-  else:
-      military_affidavitr_10_attachment.enabled = False
-      military_affidavit_attachment.enabled = True
-      al_user_bundle.elements = [military_affidavit_attachment]
-      al_court_bundle.elements = [military_affidavit_attachment]
 
 ---
 attachment:
@@ -880,9 +908,9 @@ attachment:
       - "defendant_acknowledge": ${ defendant_acknowledge }
       - "other_facts": ${ other_facts }
       - "other_facts_text": ${ other_facts_text }
-      - "rent_paid": ${ rent_paid }
-      - "unpaid_rent": ${ unpaid_rent }
-      - "unpaid_rent_date": ${ unpaid_rent_date.format() }
+      - "rent_paid": ${ months_paid_total }
+      - "unpaid_rent": ${ months_unpaid_total }
+      - "unpaid_rent_date": ${ first_month_year }
       - "premise_occupy": ${ premise_occupy }
       - "vacated_date": ${ vacated_date.format() }
       - "parties_vacated": ${ parties_vacated }
