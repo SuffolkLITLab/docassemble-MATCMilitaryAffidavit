@@ -446,7 +446,7 @@ content: |
 sets: in_service
 code: |
   # build a single list of all parties
-  all_parties = list(users.union(other_parties + additional_parties))
+  all_parties = list(users.union(other_parties + additional_parties).difference([ users[0] ]))
 
   # split them out by status
   serving_list = [p.name_full() for p in all_parties if p.military_status == 'yes']
