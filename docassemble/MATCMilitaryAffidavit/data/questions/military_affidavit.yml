@@ -89,8 +89,8 @@ code: |
   docket_number
   if summary_process_check == False:
     has_used_scra_site
-  if exhibit_attachment.exhibits.has_exhibits:
-    exhibit_attachment.exhibits.gather()
+  # if exhibit_attachment.exhibits.has_exhibits:
+  #  exhibit_attachment.exhibits.gather()
   signature_date
   users[0].signature
   military_affidavit_case_name
@@ -257,12 +257,15 @@ continue button field: set_concluded_service_dates
 #  - "Use rent worksheet": use_rent_worksheet
 #    datatype: yesnoradio
 ---
-id: montly_rent
+id: monthly rent amount
 question: |
- Please enter the dollar amount that was due each month for rent, this amount can be edited for each month later.
+ What was the monthly rent amount?
+subquestion: |
+    Please enter the dollar amount that was due **each month** for rent.  
+    You will have a chance to adjust this amount for individual months later if needed. 
 
 fields:
-  - "Rent:": monthly_rent
+  - "Monthly rent amount:": monthly_rent
     datatype: currency
 ---
 id: rent_unpaid_month_year_prep
@@ -281,7 +284,9 @@ code: |
 ---
 id: rent_unpaid_month_year
 question: |
-   After filing the lawsuit, which month and year was rent first unpaid, and which month and year was it last unpaid?
+   After filing the lawsuit, when did the unpaid rent period begin and end?
+subquestion: |
+  Please enter the first and last month and year that rent went unpaid after you filed the lawsuit.
 fields:
   - code: |
       [
@@ -312,7 +317,6 @@ fields:
       ]
 continue button field: set_unpaid_rent_month_year
 ---
----
 id: set_months_to_calc
 code: |
   from datetime import date
@@ -334,9 +338,13 @@ code: |
           current = current.replace(month=current.month+1)
 continue button field: set_months_to_calc
 ---
-id: rent_worksheet
+id: Rule 10 Rent Worksheet
 question: |
- For each month below, please verify the month name heading, review the prefilled Rent due amount, and enter the actual amount in the Rent paid box. 
+ For each month listed below, please: 
+subquestion: |
+ 1. Verify the month name heading. 
+ 2. Review the prefilled Rent Due amount. 
+ 3. Enter the actual amount paid in the Rent Paid box. 
 fields:
   - code: |
       [
@@ -402,29 +410,31 @@ code: |
 ---
 id: summary_process_check
 question: |
-  Is this case a summary process case (an eviction in Massachusetts)?
+  Is this case an eviction case (also known as a Summary Process case in Massachusetts)?
 subquestion: |
-  A Summary Process case is the legal term for an eviction case in Massachusetts Housing Court. 
+   In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing Court when a landlord is seeking to remove a tenant from a rental property.
+
+   To learn more about Summary Process cases and whether your situation qualifies, visit: https://www.mass.gov/info-details/overview-of-summary-process-for-tenants
   
-  For more information on determining whether your case qualifies as a Summary Process case, please visit: https://www.mass.gov/info-details/overview-of-summary-process-for-tenants.
 fields:
-  - "Is this a Summary Process (eviction) case": summary_process_check
+  - "Is this an eviction (Summary Process) case?": summary_process_check
     datatype: yesnoradio
 ---
 id: R10 facts supporting knowledge of service 
 question: |
   Do you have any facts that show the defendant's military service status?
-  Please check all that aply:
+subquestion: |
+  Please check all that apply:
 fields:
-  - "I saw the defendant in a military uniform": uniform_seen
+  - "I saw the defendant in a military uniform.": uniform_seen
     datatype: yesno
-  - "I saw the defendant in civilian clothing": civillian_seen
+  - "I saw the defendant in civilian clothing.": civillian_seen
     datatype: yesno
-  - "The defendant told me about their military status": defendant_acknowledge
+  - "The defendant told me about their military status.": defendant_acknowledge
     datatype: yesno
-  - "I have other facts or reasons that show the defendant(s) military status": other_facts
+  - "I have other facts or reasons that show the defendant(s) military status.": other_facts
     datatype: yesno
-  - "Please describe the other facts": other_facts_text
+  - "Please describe the other facts here:": other_facts_text
     maxlength: 120
     show if: other_facts
 ---
@@ -513,19 +523,18 @@ columns:
 ---
 id: vacated status question 
 question: |
-  Have any of the tenants vacated (moved out) of the property?
-  
+  Have any of the tenants moved out of the property?
 
   "Vacated" means the tenant has permanently left the property and no longer lives there. 
 fields:
-  - At least one tenant has permanently moved out: vacated_status
+  - "Has at least one tenant permanently moved out?": vacated_status
     datatype: yesnoradio
 ---
 id: set_vacated_status
 question: |
   Tell us whether each defendant has vacated the premises:
 subquestion: |
-  Select "Vacated" if the person has already left the home.
+  Select "Vacated" if the person has permanently left the home and no longer lives there. 
 fields:
   - code: |
       [
@@ -539,12 +548,12 @@ fields:
           "datatype": "radio",
           "choices": [
             {"label": "Vacated", "value": True},
-            {"label": "Still in premises", "value": False}
+            {"label": "Still living there", "value": False}
           ]
         }
         for party in sorted(other_parties)
       ]
-  - "When did someone move out?": vacated_date
+  - "When did the tenant move out?": vacated_date
     datatype: date
 continue button field: set_vacated_status
 --- 
