@@ -86,6 +86,7 @@ code: |
   #   ask_unsure_serving_parties
   # if len(serving_parties) + len(concluded_service_parties) + len(unsure_serving_parties) < len(users) + len(other_parties) + len(additional_parties):
   #   confirm_not_serving_parties
+  in_service
   docket_number
   if summary_process_check == False:
     has_used_scra_site
@@ -372,16 +373,17 @@ fields:
       ]
 continue button field: rent_worksheet
 ---
-#id: rent_info_gather
-#question: |
-#  How much rent was paid and how much was not paid?
-#fields:
-#  - "unpaid rent": unpaid_rent
-#    datatype: currency
-#  - "paid rent": rent_paid
-#    datatype: currency
-#  - "when was the last month rent was paid for?": unpaid_rent_date
-#    datatype: date
+
+id: rent_info_gather
+question: |
+  Please provide the following information:
+fields:
+  - "How much rent has not been paid?": unpaid_rent
+    datatype: currency
+  - "How much rent has already been paid?": rent_paid
+    datatype: currency
+  - "What was the last month for which rent was paid?": unpaid_rent_date
+    datatype: date
 ---
 id: calculate_monthly_unpaid_and_paid
 code: |
@@ -410,7 +412,7 @@ code: |
 ---
 id: summary_process_check
 question: |
-  Is this case an eviction case (also known as a Summary Process case in Massachusetts)?
+  Is this case about removing someone from a home or apartment? (also known as a Summary Process case in Massachusetts)?
 subquestion: |
    In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing Court when a landlord is seeking to remove a tenant from a rental property.
 
@@ -479,9 +481,10 @@ content: |
   The bond is only required if the other party does not show up in court
   and loses "by default".
 ---
+sets: in_service
 code: |
   # build a single list of all parties
-  all_parties = list(users.union(other_parties + additional_parties))
+  all_parties = list(users.union(other_parties + additional_parties).difference([ users[0] ]))
 
   # split them out by status
   serving_list = [p.name_full() for p in all_parties if p.military_status == 'yes']
@@ -497,8 +500,9 @@ code: |
   not_service            = comma_and_list(no_list)
 
   in_service     = bool(serving_list)
-  # if you ever need a “has any no’s” flag:
-  has_not_service = bool(no_list)
+  not_service    = bool(no_list)
+  unable_service_checkbox = bool(past_list)
+  unsure_serving_parties_checkbox = bool(unsure_list)
 
 ---
 id: confirm serving party status
@@ -871,7 +875,7 @@ code: |
 ---
 attachment:
   name: military affidavit rule 10
-  filename: military_affidavitr_10
+  filename: military_affidavit rule 10
   variable name: military_affidavitr_10_attachment[i]
   skip undefined: True
   pdf template file: military_affidavitr_10.pdf
@@ -1016,7 +1020,7 @@ attachment:
       - "users1_name_full__1": |
           ${ users[0] }
       - "date_signed__1": ${ today() }
-      - "has_serving_parties": ${ any([party.military_status == "yes" for party in users.union(other_parties + additional_parties)]) }
+      - "in_service": ${ any([party.military_status == "yes" for party in users.union(other_parties + additional_parties)]) }
       - "serving_parties": ${ comma_and_list([party.name_full() for party in users.union(other_parties + additional_parties) if party.military_status == "yes"]) }
       - "has_not_serving_parties": ${ any([party.military_status == "no" for party in users.union(other_parties + additional_parties)]) }
       - "not_serving_parties": ${ comma_and_list( [party.name_full() for party in users.union(other_parties + additional_parties) if party.military_status == "no"] ) }
