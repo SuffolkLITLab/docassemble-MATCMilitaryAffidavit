@@ -481,7 +481,9 @@ content: |
   The bond is only required if the other party does not show up in court
   and loses "by default".
 ---
-sets: in_service
+sets: 
+  - in_service
+  - unable_service
 code: |
   # build a single list of all parties
   all_parties = list(users.union(other_parties + additional_parties).difference([ users[0] ]))
@@ -495,14 +497,14 @@ code: |
   # now expose both the raw lists (joined as comma‐strings) and booleans
   from docassemble.base.util import comma_and_list
   serving_parties        = comma_and_list(serving_list)
-  unable_service         = comma_and_list(past_list)
+  past_service         = comma_and_list(past_list)
   unsure_serving_parties = comma_and_list(unsure_list)
   not_service            = comma_and_list(no_list)
 
   in_service     = bool(serving_list)
   not_service    = bool(no_list)
-  unable_service_checkbox = bool(past_list)
-  unsure_serving_parties_checkbox = bool(unsure_list)
+  past_service_checkbox = bool(past_list)
+  unable_service = bool(unsure_list)
 
 ---
 id: confirm serving party status
