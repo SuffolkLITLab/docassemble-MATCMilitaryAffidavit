@@ -140,6 +140,45 @@ fields:
       variable: user_role
       is: "attorney"
 ---
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+id: names of opposing parties
+question: |
+  % if user_started_case:
+  Name of ${ ordinal(i) } **defendant** or respondent in this
+  matter
+  % else:
+  Name of ${ ordinal(i) } **plaintiff** or petitioner in this matter
+  % endif
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='person')
+---
+id: is there an opposing party?
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal'] and user_started_case:
+  Is there a **defendant** or respondent in this case? 
+  % elif al_form_type in ['starts_case','existing_case','appeal']:
+  Is there a **plaintiff** or petitioner in this case?
+  % else:
+  Is there someone on the other side of your dispute?
+  % endif
+subquestion: |
+  % if al_form_type in ['starts_case','existing_case','appeal'] and user_started_case:
+  Answer yes if there is a person you are suing or taking to court.
+  % elif al_form_type in ['starts_case','existing_case','appeal']:
+  You should be able to find out from the paperwork that told you to 
+  go to court.
+
+  Answer yes if someone else has sued you or is bringing you to court.
+  % endif
+fields:
+  - no label: other_parties.there_are_any
+    datatype: yesnoradio
+---
 id: explanation diligent search
 question: |
   Before you answer the next questions
