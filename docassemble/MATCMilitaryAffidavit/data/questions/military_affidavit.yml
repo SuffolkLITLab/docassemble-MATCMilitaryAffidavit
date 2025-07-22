@@ -68,6 +68,7 @@ code: |
     vacated_status
     if vacated_status:
       set_vacated_status
+      vacated_date
       vacated_parties
     #use_rent_worksheet
     monthly_rent
@@ -557,10 +558,17 @@ fields:
         }
         for party in sorted(other_parties)
       ]
-  - "When did the tenant move out?": vacated_date
-    datatype: date
 continue button field: set_vacated_status
---- 
+---
+id: vacated_date
+question: |
+  When did the tenant move out?
+fields:
+  - "Vacated date": vacated_date
+    datatype: ThreePartsDate
+continue button field: vacated_date
+---
+
 code: |
   vacated_parties = [party.name_full() for party in other_parties if getattr(party, "vacated", None) is True]
   parties_vacated = len(vacated_parties) > 0
