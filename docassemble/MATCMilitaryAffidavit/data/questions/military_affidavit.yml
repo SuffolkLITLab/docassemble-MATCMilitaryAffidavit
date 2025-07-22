@@ -871,6 +871,18 @@ code: |
   # This is available to customize in other forms with more complex case name scenarios
   # Leave it undefined to use the default case name of petitioner v respondent or In the interests of respondent
   military_affidavit_case_name = ""
+---
+code: |
+  if summary_process_check:
+      military_affidavitr_10_attachment.enabled = True
+      military_affidavit_attachment.enabled = False
+      al_user_bundle.elements = [military_affidavitr_10_attachment]
+      al_court_bundle.elements = [military_affidavitr_10_attachment]
+  else:
+      military_affidavitr_10_attachment.enabled = False
+      military_affidavit_attachment.enabled = True
+      al_user_bundle.elements = [military_affidavit_attachment]
+      al_court_bundle.elements = [military_affidavit_attachment]
 
 ---
 attachment:
