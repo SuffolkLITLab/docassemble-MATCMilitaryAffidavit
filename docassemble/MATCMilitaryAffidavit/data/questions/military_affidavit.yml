@@ -27,14 +27,6 @@ objects:
   - concluded_service_parties: ALPeopleList.using(auto_gather=False, gathered=True)
   - military_affidavit_attachment: ALDocument.using(title="Military Affidavit", filename="military_affidavit", has_addendum=False)
   - military_affidavitr_10_attachment: ALDocument.using(title="Military Affidavit R10", filename="military_affidavitr_10", has_addendum=False)
-  # - exhibit_attachment: ALExhibitDocument.using(
-  #        title="Exhibits",
-  #       filename="exhibits",
-  #        add_page_numbers=True,
-  #       include_table_of_contents=True,
-  #         include_exhibit_cover_pages=True,
-  #     )
-
   - military_affidavit_proof_attachment: ALDocumentUpload.using(
           title="Military Affidavit Proof",
           filename="Military Affidavit Proof",
@@ -56,6 +48,7 @@ code: |
   users.gather()
   other_parties.gather()
   additional_parties.gather()
+  docket_number
   trial_court
   set_all_military_statuses
   if any([party.military_status == "past" for party in other_parties + additional_parties]):
@@ -64,21 +57,18 @@ code: |
     bond_agreement_i_understand
   review_military_status
   summary_process_check
-  if summary_process_check == True:
+  if summary_process_check:
     vacated_status
     if vacated_status:
       set_vacated_status
       vacated_date
       vacated_parties
-    #use_rent_worksheet
     monthly_rent
     set_unpaid_rent_month_year
     rent_worksheet
     months_unpaid_total
-    #unpaid_rent
     uniform_seen
   in_service
-  docket_number
   if summary_process_check == False:
     has_used_scra_site
   signature_date
@@ -429,18 +419,6 @@ code: |
   vars()["months_unpaid_total"] = months_unpaid_total
   vars()["months_paid_total"] = months_paid_total
 ---
-id: summary_process_check
-question: |
-  Is this case about removing someone from a home or apartment? (also known as a Summary Process case in Massachusetts)?
-subquestion: |
-   In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing Court when a landlord is seeking to remove a tenant from a rental property.
-
-   To learn more about Summary Process cases and whether your situation qualifies, visit: https://www.mass.gov/info-details/overview-of-summary-process-for-tenants
-  
-fields:
-  - "Is this an eviction (Summary Process) case?": summary_process_check
-    datatype: yesnoradio
----
 id: R10 facts supporting knowledge of service 
 question: |
   Do you have any facts that show the defendant's military service status?
@@ -553,6 +531,18 @@ question: |
   "Vacated" means the tenant has permanently left the property and no longer lives there. 
 fields:
   - "Has at least one tenant permanently moved out?": vacated_status
+    datatype: yesnoradio
+---
+id: summary_process_check
+question: |
+  Is this case about removing someone from a home or apartment? (also known as a Summary Process case in Massachusetts)?
+subquestion: |
+   In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing Court when a landlord is seeking to remove a tenant from a rental property.
+
+   To learn more about Summary Process cases and whether your situation qualifies, visit: https://www.mass.gov/info-details/overview-of-summary-process-for-tenants
+  
+fields:
+  - "Is this an eviction (Summary Process) case?": summary_process_check
     datatype: yesnoradio
 ---
 id: set_vacated_status
