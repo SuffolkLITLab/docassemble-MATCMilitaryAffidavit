@@ -77,22 +77,10 @@ code: |
     months_unpaid_total
     #unpaid_rent
     uniform_seen
-  # if len(serving_parties) < len(users) + len(other_parties) + len(additional_parties):
-  #   ask_concluded_service_parties
-  #   if len(concluded_service_parties.elements):
-  #     set_concluded_service_dates
-  #   for party in concluded_service_parties.elements:
-  #     party.service_ended_date
-  # if (len(serving_parties) + len(concluded_service_parties)) < len(users) + len(other_parties) + len(additional_parties):
-  #   ask_unsure_serving_parties
-  # if len(serving_parties) + len(concluded_service_parties) + len(unsure_serving_parties) < len(users) + len(other_parties) + len(additional_parties):
-  #   confirm_not_serving_parties
   in_service
   docket_number
   if summary_process_check == False:
     has_used_scra_site
-  # if exhibit_attachment.exhibits.has_exhibits:
-  #  exhibit_attachment.exhibits.gather()
   signature_date
   users[0].signature
   military_affidavit_case_name
@@ -288,15 +276,6 @@ fields:
         if party.military_status == "past"
       ]
 continue button field: set_concluded_service_dates
----
-#id: ask_use_rent_worksheet
-#question: |
-#  Would you like to use the rent worksheet on the form to itemize each #month’s rent and payments?
-#subquestion: |
-#  If you choose “Yes,” you’ll get a table where you can enter the rent #due and amount paid for each month, and we’ll calculate the unpaid total #for you.
-#fields:
-#  - "Use rent worksheet": use_rent_worksheet
-#    datatype: yesnoradio
 ---
 id: monthly rent amount
 question: |
