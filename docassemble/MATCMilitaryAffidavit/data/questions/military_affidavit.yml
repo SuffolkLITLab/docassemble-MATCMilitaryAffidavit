@@ -427,9 +427,9 @@ subquestion: |
 fields:
   - "I saw the defendant in a military uniform.": uniform_seen
     datatype: yesno
-  - "I saw the defendant in civilian clothing.": civillian_seen
+  - "The defendant works in civilian employment.": civillian_seen
     datatype: yesno
-  - "The defendant told me about their military status.": defendant_acknowledge
+  - "The defendant has acknowledged their military status.": defendant_acknowledge
     datatype: yesno
   - "I have other facts or reasons that show the defendant(s) military status.": other_facts
     datatype: yesno
