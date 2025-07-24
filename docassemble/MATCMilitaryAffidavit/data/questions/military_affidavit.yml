@@ -45,6 +45,7 @@ code: |
   if user_role == "attorney":
    attorneys.there_are_any = True
    bbo
+  helper_attorney
   users.gather()
   other_parties.gather()
   additional_parties.gather()
@@ -184,6 +185,21 @@ validation code: |
   # This should be safe to 
   if dont_know_docket_number:
     docket_number = ''      
+---
+id: helper attorney
+question: |
+  Is there an attorney assisting you in filliing out this form
+fields:
+  - I am filling this out with an attorney's help: there_is_helper
+    datatype: yesno    
+  - Attorney Name: helper_attorney
+    show if: there_is_helper
+  - Attorney BBO: helper_bbo
+    show if: there_is_helper
+validation code: |
+  # This should be safe to 
+  if dont_know_docket_number:
+    docket_number = '' 
 ---
 template: fee_waiver_docket_number_explanation_template
 subject: |
