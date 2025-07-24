@@ -49,6 +49,7 @@ code: |
   other_parties.gather()
   additional_parties.gather()
   docket_number
+  summary_process_check
   trial_court
   set_all_military_statuses
   if any([party.military_status == "past" for party in other_parties + additional_parties]):
@@ -56,7 +57,6 @@ code: |
   if any([party.military_status == "unknown" for party in other_parties + additional_parties]):
     bond_agreement_i_understand
   review_military_status
-  summary_process_check
   if summary_process_check:
     vacated_status
     if vacated_status:
@@ -568,19 +568,37 @@ question: |
   "Vacated" means the tenant has permanently left the property and no longer lives there. 
 fields:
   - "Has at least one tenant permanently moved out?": vacated_status
-    datatype: yesnoradio
+    datatype: yesnoradi0
 ---
-id: summary_process_check
-question: |
-  Is this case about removing someone from a home or apartment? (also known as a Summary Process case in Massachusetts)?
-subquestion: |
-   In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing Court when a landlord is seeking to remove a tenant from a rental property.
+sets:
+  - summary_process_check
+code: |
+  # Default
+  summary_process_check = False
 
-   To learn more about Summary Process cases and whether your situation qualifies, visit: https://www.mass.gov/info-details/overview-of-summary-process-for-tenants
-  
-fields:
-  - "Is this an eviction (Summary Process) case?": summary_process_check
-    datatype: yesnoradio
+  # Safely handle None or empty docket numbers
+  dn = docket_number or ''
+
+  # Need at least 7 chars to include year, court code, and case‑type
+  if len(dn) >= 7:
+      # 1) Housing Court: 3rd char "H", next two chars digits, then "SP"
+      if dn[2] == 'H' and dn[3:5].isdigit() and dn[5:7] == 'SP':
+          summary_process_check = True
+      # 2) District/BMC: 3rd char ≠ "H", first two‑digit court code, then "SU"
+      elif dn[2] != 'H' and dn[2:4].isdigit() and dn[4:6] == 'SU':
+          summary_process_check = True
+---
+#id: summary_process_check
+#question: |
+#  Is this case about removing someone from a home or apartment? #(also known as a Summary Process case in Massachusetts)?
+#subquestion: |
+#   In Massachusetts, an eviction case is legally called a #"Summary Process" case. These are typically filed in Housing #Court when a landlord is seeking to remove a tenant from a #rental property.
+#
+#   To learn more about Summary Process cases and whether your #situation qualifies, visit: https://www.mass.gov/info-#details/overview-of-summary-process-for-tenants
+#  
+#fields:
+#  - "Is this an eviction (Summary Process) case?": #summary_process_check
+#    datatype: yesnoradio
 ---
 id: set_vacated_status
 question: |
