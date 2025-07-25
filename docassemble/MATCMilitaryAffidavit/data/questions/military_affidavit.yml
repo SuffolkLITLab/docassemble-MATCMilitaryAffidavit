@@ -45,12 +45,15 @@ code: |
   if user_role == "attorney":
    attorneys.there_are_any = True
    bbo
-  helper_attorney
+  is_there_helper
+  if is_there_helper:
+    helper_attorney
   users.gather()
   other_parties.gather()
   additional_parties.gather()
   docket_number
-  summary_process_check
+  if dont_know_docket_number:
+    summary_process_check
   trial_court
   set_all_military_statuses
   if any([party.military_status == "past" for party in other_parties + additional_parties]):
@@ -186,20 +189,19 @@ validation code: |
   if dont_know_docket_number:
     docket_number = ''      
 ---
-id: helper attorney
+id: is_there_helper
 question: |
-  Is there an attorney assisting you in filliing out this form
+  Are you receiving help from an attorney to complete this form?
 fields:
-  - I am filling this out with an attorney's help: there_is_helper
-    datatype: yesno    
-  - Attorney Name: helper_attorney
-    show if: there_is_helper
-  - Attorney BBO: helper_bbo
-    show if: there_is_helper
-validation code: |
-  # This should be safe to 
-  if dont_know_docket_number:
-    docket_number = '' 
+  - Helper?: is_there_helper
+    datatype: yesnoradio
+---
+id: helper_attorney
+question: |
+  Please enter the attorney's information.
+fields:
+  - "Attorney's name": helper_attorney
+  - "Attorney's BBO number (if known)": helper_bbo
 ---
 template: fee_waiver_docket_number_explanation_template
 subject: |
@@ -604,17 +606,17 @@ code: |
       elif dn[2] != 'H' and dn[2:4].isdigit() and dn[4:6] == 'SU':
           summary_process_check = True
 ---
-#id: summary_process_check
-#question: |
-#  Is this case about removing someone from a home or apartment? #(also known as a Summary Process case in Massachusetts)?
-#subquestion: |
-#   In Massachusetts, an eviction case is legally called a #"Summary Process" case. These are typically filed in Housing #Court when a landlord is seeking to remove a tenant from a #rental property.
-#
-#   To learn more about Summary Process cases and whether your #situation qualifies, visit: https://www.mass.gov/info-#details/overview-of-summary-process-for-tenants
-#  
-#fields:
-#  - "Is this an eviction (Summary Process) case?": #summary_process_check
-#    datatype: yesnoradio
+id: summary_process_check
+question: |
+  Is this case about removing someone from a home or apartment? (also known as a Summary Process case in Massachusetts)?
+subquestion: |
+   In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing #Court when a landlord is seeking to remove a tenant from a #rental property.
+
+   To learn more about Summary Process cases and whether your #situation qualifies, visit: https://www.mass.gov/info-#details/overview-of-summary-process-for-tenants
+  
+fields:
+  - "Is this an eviction (Summary Process) case?": summary_process_check
+    datatype: yesnoradio
 ---
 id: set_vacated_status
 question: |
