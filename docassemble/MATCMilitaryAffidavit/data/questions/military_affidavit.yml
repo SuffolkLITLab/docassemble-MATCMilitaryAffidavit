@@ -637,6 +637,9 @@ fields:
   - "Do the defendant(s) live in Massachusetts or have ties to the state?": defendants_in_mass
     datatype: yesno
     required: True
+validation code: |
+  if not defendants_in_mass:
+    validation_error("You must confirm that the court has jurisdiction over the defendant(s) to continue.")
 ---
 id: set_vacated_status
 question: |
