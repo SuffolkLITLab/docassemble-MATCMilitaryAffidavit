@@ -23,7 +23,7 @@ objects:
   - al_court_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment, military_affidavit_proof_attachment], filename="military_affidavit", title="All forms to deliver to court", enabled=True)
 ---
 code: |
-  military_affidavit_proof_attachment.enabled=has_used_scra_site and wants_to_attach_search_results
+ military_affidavit_proof_attachment.enabled=has_used_scra_site and wants_to_attach_search_results
 
 ---
 code: |
