@@ -586,7 +586,7 @@ question: |
   "Vacated" means the tenant has permanently left the property and no longer lives there. 
 fields:
   - "Has at least one tenant permanently moved out?": vacated_status
-    datatype: yesnoradi0
+    datatype: yesnoradio
 ---
 sets:
   - summary_process_check
@@ -610,9 +610,9 @@ id: summary_process_check
 question: |
   Is this case about removing someone from a home or apartment? (also known as a Summary Process case in Massachusetts)?
 subquestion: |
-   In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing #Court when a landlord is seeking to remove a tenant from a #rental property.
+   In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing Court when a landlord is seeking to remove a tenant from a rental property.
 
-   To learn more about Summary Process cases and whether your #situation qualifies, visit: https://www.mass.gov/info-#details/overview-of-summary-process-for-tenants
+   To learn more about Summary Process cases and whether your situation qualifies, visit: https://www.mass.gov/info-#details/overview-of-summary-process-for-tenants
   
 fields:
   - "Is this an eviction (Summary Process) case?": summary_process_check
@@ -645,7 +645,7 @@ continue button field: set_vacated_status
 ---
 id: vacated_date
 question: |
-  When did the tenant move out?
+  When did the last tenant move out?
 fields:
   - "Vacated date": vacated_date
     datatype: ThreePartsDate
