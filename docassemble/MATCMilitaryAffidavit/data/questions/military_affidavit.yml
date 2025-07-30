@@ -406,23 +406,18 @@ code: |
           current = current.replace(month=current.month+1)
 continue button field: set_months_to_calc
 ---
-id: Rule 10 Rent Worksheet
+id: rent_worksheet
 question: |
- For each month listed below, please: 
+  For each month listed below, please:
 subquestion: |
- 1. Verify the month name heading. 
- 2. Review the prefilled Rent Due amount. 
- 3. Enter the actual amount paid in the Rent Paid box. 
+  1. Verify the month name heading.  
+  2. Review the prefilled **Rent Due** amount.  
+  3. Enter the actual amount **Paid** in the **Rent Paid** box.
 fields:
   - code: |
-      [
-        field_def
-        for key, label in months_to_calc
-        for field_def in [
-          {
-            "note": label,
-            "item grid": {"width": 12, "breakpoint": "sm"}
-          },
+      sum([
+        [
+          {"note": f"**{label}**", "item grid": {"width": 12, "breakpoint": "sm"}},
           {
             "field": f"rent_due_{key}",
             "label": "Rent due",
@@ -437,20 +432,9 @@ fields:
             "item grid": {"width": 6, "breakpoint": "sm"}
           }
         ]
-      ]
+        for key, label in months_to_calc
+      ], [])
 continue button field: rent_worksheet
----
-
-id: rent_info_gather
-question: |
-  Please provide the following information:
-fields:
-  - "How much rent has not been paid?": unpaid_rent
-    datatype: currency
-  - "How much rent has already been paid?": rent_paid
-    datatype: currency
-  - "What was the last month for which rent was paid?": unpaid_rent_date
-    datatype: date
 ---
 id: calculate_monthly_unpaid_and_paid
 code: |
