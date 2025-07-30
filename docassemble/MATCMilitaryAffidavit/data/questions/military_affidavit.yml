@@ -27,9 +27,10 @@ objects:
   - concluded_service_parties: ALPeopleList.using(auto_gather=False, gathered=True)
   - military_affidavit_attachment: ALDocument.using(title="Military Affidavit", filename="military_affidavit", has_addendum=False)
   - military_affidavitr_10_attachment: ALDocument.using(title="Military Affidavit R10", filename="military_affidavitr_10", has_addendum=False)
-  - military_affidavit_proof_attachment: ALDocumentUpload.using(
+  - military_affidavit_proof_attachment: ALDocument.using(
           title="Military Affidavit Proof",
-          filename="Military Affidavit Proof",
+          filename="Military Affidavit Proof", 
+          has_addendum=False
         )
 ---
 sections:
@@ -785,7 +786,7 @@ fields:
   - Are you ready to attach a copy or screenshot now?: wants_to_attach_search_results
     datatype: yesnoradio
     show if: has_used_scra_site
-  - Attach a copy of the search results: military_affidavit_proof_attachment.file
+  - Attach a copy of the search results: military_affidavit_proof_attachment["final"]
     datatype: file
     file css class: None
     accept: |
@@ -1200,6 +1201,8 @@ attachment:
       - "users1_phone": ${users[0].phone_numbers() }
       - "user_bbo": ${bbo}
       - "users1_email": ${users[0].email}
+
+
 ---
 code: |
   military_affidavit_bundle.enabled = True
