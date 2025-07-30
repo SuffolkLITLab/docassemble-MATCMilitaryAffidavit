@@ -69,6 +69,7 @@ code: |
       set_vacated_status
       vacated_date
       vacated_parties
+      review_vacated_status
     monthly_rent
     set_unpaid_rent_month_year
     rent_worksheet
@@ -714,6 +715,48 @@ fields:
   - note: |
       We will call this person an **additional party** in the rest of this interview.
     show if: additional_parties.there_are_any
+---
+---
+id: review_vacated_status
+event: review_vacated_status
+question: |
+  Review vacated status information
+review:
+  - Edit: vacated_status
+    button: |
+      **Have any tenants moved out?**  
+      % if vacated_status:
+      Yes
+      % else:
+      No
+      % endif
+
+  - Edit: set_vacated_status
+    button: |
+      **Status of each tenant**  
+      % for party in other_parties:
+        * ${ party.name_full() }:  
+          % if defined("party.vacated") and party.vacated:
+          Vacated
+          % elif defined("party.vacated") and not party.vacated:
+          Still living there
+          % else:
+          Unknown
+          % endif
+      % endfor
+
+  - Edit: vacated_date
+    button: |
+      **Date tenant moved out**  
+      ${ vacated_date }
+
+  - note: |
+      **List of tenants who have vacated:**  
+      % if defined("vacated_parties") and vacated_parties:
+      ${ comma_and_list(vacated_parties) }
+      % else:
+      None
+      % endif
 ---
 id: additional party name 
 sets:
