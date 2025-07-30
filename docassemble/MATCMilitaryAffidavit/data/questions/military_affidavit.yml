@@ -54,6 +54,8 @@ code: |
   docket_number
   if dont_know_docket_number:
     summary_process_check
+  if address_outside_ma:
+    defendants_in_mass
   trial_court
   set_all_military_statuses
   if any([party.military_status == "past" for party in other_parties + additional_parties]):
@@ -617,6 +619,27 @@ subquestion: |
 fields:
   - "Is this an eviction (Summary Process) case?": summary_process_check
     datatype: yesnoradio
+---
+code: |
+  address_outside_ma = users[0].address.state.upper() != "MA"
+---
+id: address_out_of_state_warning
+question: |
+  Address Warning
+subquestion: |
+  It looks like your address isn’t in Massachusetts. Are you sure you’re filing in the right jurisdiction?
+
+  You are allowed to file from out of state. However, in most cases, the defendant must be a Massachusetts resident or have accounts or an address in Massachusetts.
+
+  If you're not sure, you may want to contact the court or seek legal help.
+
+fields:
+  - "Do the defendant(s) live in Massachusetts or have ties to the state?": defendants_in_mass
+    datatype: yesno
+    required: True
+validation code: |
+  if not defendants_in_mass:
+    validation_error("You must confirm that the court has jurisdiction over the defendant(s) to continue.")
 ---
 id: set_vacated_status
 question: |
