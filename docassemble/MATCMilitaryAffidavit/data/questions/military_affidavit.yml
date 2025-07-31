@@ -1,4 +1,28 @@
 ---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALMassachusetts:al_massachusetts.yml
+  - docassemble.MassAccess:massaccess.yml
+  - military_affidavit.yml
+  - docassemble.MATCTheme:matc_theme.yml
+---
+metadata:
+  title: |
+    Military Affidavit
+  short title: |
+    Military Affidavit
+  authors:
+    - Pratibha Bharti
+    - Quinten Steenhuis
+    - Conner McGarry
+    - Maeve Torrey
+---
+code: |
+ military_affidavit_proof_attachment.enabled=has_used_scra_site and wants_to_attach_search_results
+---
+code: |
+  interview_metadata['main_interview_key'] =  'military_affidavit'
+---
 code: |
   addresses_to_search = [users[0].address]
 ---
@@ -32,16 +56,78 @@ objects:
           filename="Military Affidavit Proof", 
           has_addendum=False
         )
+  - al_user_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment, military_affidavit_proof_attachment], filename="military_affidavit", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment, military_affidavit_proof_attachment], filename="military_affidavit", title="All forms to deliver to court", enabled=True)
 ---
 sections:
   - review_military_affidavit: Review your answers
+---
+mandatory: True
+comment: |
+  Global interview metadata
+variable name: interview_metadata["military_affidavit"]
+data:
+  al_weaver_version: "1.8.0"
+  generated on: "2023-02-28"
+  title: >-
+    Military Affidavit
+  short title: >-
+    Military Affidavit
+  description: |-
+    Affidavit Declaring whether the party is a military servicemember
+  allowed courts: 
+    - "Boston Municipal Court"
+    - "District Court"
+    - "Housing Court"
+    - "Juvenile Court"
+    - "Land Court"
+    - "Probate and Family Court"
+    - "Superior Court"
+  categories:
+    - "ED-00-00-00-00"
+    - "MO-00-00-00-00"
+    - "HE-00-00-00-00"
+    - "IM-00-00-00-00"
+    - "BE-00-00-00-00"
+    - "FA-07-00-00-00"
+    - "HO-00-00-00-00"
+    - "BE-04-00-00-00"
+    - "ES-00-00-00-00"
+    - "RI-10-00-00-00"
+    - "FA-00-00-00-00"
+  typical role: "unknown"
+  generate download screen: True
+---
+code: |
+  interview_metadata['main_interview_key'] =  'military_affidavit'
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  # military_affidavit_intro
+  nav.set_section("review_military_affidavit")
+  interview_order_military_affidavit
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  military_affidavit_download
 ---
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_military_affidavit
+mandatory: True
 code: |
-  # Set the allowed courts for this interview
+  military_affidavit_intro
   user_role
   if user_role == "attorney":
    attorneys.there_are_any = True
@@ -70,7 +156,7 @@ code: |
       set_vacated_status
       vacated_date
       vacated_parties
-      review_vacated_status
+      # review_vacated_status
     monthly_rent
     set_unpaid_rent_month_year
     rent_worksheet
@@ -104,11 +190,13 @@ subquestion: |
   This affidavit has to be filed even if none of the parties are
   in the military right now.
 
-  Use the best information you know. But you must explain either that:
+    How do you know the defendant's military status? 
+  
+  You will be required to provide proof of how you know the defendant's military status later in this interview. 
 
+  Use the best information you know. But you must explain either that: 
   * you know the military status of each party, or 
-  * you searched the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
-    to find out their military status
+  * you searched the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/) to find out their military status.
 ---
 id: User Type
 question: |
@@ -168,7 +256,7 @@ fields:
 id: any other users
 question: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
-  Are there any other peitioners or plaintiffs in this case?
+  Are there any other petitioners or plaintiffs in this case?
   % else:
   Is anyone else adding their name to this form with you?
   % endif
@@ -777,6 +865,15 @@ code: |
 id: supporting the affidavit
 question: |
   How do you know the military status of the parties in this case?
+subquestion: |
+    You will be required to provide proof of how you know the defendant's military status later in this interview. 
+    
+    You have two options:
+
+    1. Use the SCRA Website — If you know the defendant’s date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
+
+    2. Use another method — If you didn’t use the SCRA Website, explain how else you found out the defendant’s military status. For example, you may have spoken to the defendant, or contacted a branch of the military listed [here](https://www.defense.gov/Resources/Military-Departments/).
+
 fields:
   - "Did you use the Servicemembers Civil Relief Act Website?": has_used_scra_site
     datatype: yesnoradio
@@ -1202,7 +1299,25 @@ attachment:
       - "user_bbo": ${bbo}
       - "users1_email": ${users[0].email}
 
-
 ---
 code: |
   military_affidavit_bundle.enabled = True
+---
+id: download military_affidavit
+event: military_affidavit_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_military_affidavit'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
