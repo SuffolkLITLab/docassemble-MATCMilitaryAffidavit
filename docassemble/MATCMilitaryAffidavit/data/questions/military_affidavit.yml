@@ -164,6 +164,7 @@ code: |
   in_service
   if summary_process_check == False:
     has_used_scra_site
+    call_to_uploading_exhibits
   signature_date
   users[0].signature
   military_affidavit_case_name
@@ -1087,7 +1088,7 @@ code: |
 ---
 code: |
   # This is available to customize in other forms with more complex case name scenarios
-  # Leave it undefined to use the default case name of petitioner v respondent or In the interests of respondent
+  # Leave it undefined to use the default case name of petitioner v respondent or in the interests of the respondent
   military_affidavit_case_name = ""
 ---
 code: |
@@ -1096,12 +1097,16 @@ code: |
       military_affidavit_attachment.enabled = False
       al_user_bundle.elements = [military_affidavitr_10_attachment]
       al_court_bundle.elements = [military_affidavitr_10_attachment]
+      log("summary_process_check = True","console")
   else:
       military_affidavitr_10_attachment.enabled = False
       military_affidavit_attachment.enabled = True
-      al_user_bundle.elements = [military_affidavit_attachment]
-      al_court_bundle.elements = [military_affidavit_attachment]
+      al_user_bundle.elements = [military_affidavit_attachment, military_affidavit_proof_attachment]
+      al_court_bundle.elements = [military_affidavit_attachment, military_affidavit_proof_attachment]
+      log("summary_process_check = False","console")
 
+  log("finished call to uploading exhibits","console")
+  call_to_uploading_exhibits = True 
 ---
 attachment:
   name: military affidavit rule 10
