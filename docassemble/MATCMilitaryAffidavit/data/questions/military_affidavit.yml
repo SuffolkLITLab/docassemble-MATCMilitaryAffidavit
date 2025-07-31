@@ -63,14 +63,14 @@ code: |
     set_concluded_service_dates
   if any([party.military_status == "unknown" for party in other_parties + additional_parties]):
     bond_agreement_i_understand
-  review_military_status
+  #review_military_status
   if summary_process_check:
     vacated_status
     if vacated_status:
       set_vacated_status
       vacated_date
       vacated_parties
-      review_vacated_status
+      #review_vacated_status
     monthly_rent
     set_unpaid_rent_month_year
     rent_worksheet
@@ -547,25 +547,25 @@ code: |
   unable_service = bool(unsure_list)
 
 ---
-id: confirm serving party status
-question: |
-  Confirm the military status of each party
-subquestion: |
-  Here is what you told us about each party:
-
-  ${ all_party_status_review_table }
-
-  ${ action_button_html(url_action('set_all_military_statuses'), label="Edit military service status")}
-continue button field: review_military_status
+#id: confirm serving party status
+#question: |
+#  Confirm the military status of each party
+#subquestion: |
+#  Here is what you told us about each party:
+#
+#  ${ all_party_status_review_table }
+#
+#  ${ action_button_html(url_action('set_all_military_statuses'), #label="Edit military service status")}
+#continue button field: review_military_status
 ---
-table: all_party_status_review_table
-rows: other_parties + additional_parties
-columns:
-  - Name: |
-      row_item.name_full()
+#table: all_party_status_review_table
+#rows: other_parties + additional_parties
+#columns:
+#  - Name: |
+#      row_item.name_full()
   # Find the first matching key in the military_status_labels list and show the matching text - this is for translation
-  - In active service?: |
-      next((k for d in military_status_labels for k, v in d.items() if v == row_item.military_status), "")
+#  - In active service?: |
+#      next((k for d in military_status_labels for k, v in d.items() if v #== row_item.military_status), "")
 ---
 id: vacated status question 
 question: |
@@ -702,46 +702,26 @@ fields:
     show if: additional_parties.there_are_any
 ---
 ---
-id: review_vacated_status
-event: review_vacated_status
-question: |
-  Review vacated status information
-review:
-  - Edit: vacated_status
-    button: |
-      **Have any tenants moved out?**  
-      % if vacated_status:
-      Yes
-      % else:
-      No
-      % endif
-
-  - Edit: set_vacated_status
-    button: |
-      **Status of each tenant**  
-      % for party in other_parties:
-        * ${ party.name_full() }:  
-          % if defined("party.vacated") and party.vacated:
-          Vacated
-          % elif defined("party.vacated") and not party.vacated:
-          Still living there
-          % else:
-          Unknown
-          % endif
-      % endfor
-
-  - Edit: vacated_date
-    button: |
-      **Date tenant moved out**  
-      ${ vacated_date }
-
-  - note: |
-      **List of tenants who have vacated:**  
-      % if defined("vacated_parties") and vacated_parties:
-      ${ comma_and_list(vacated_parties) }
-      % else:
-      None
-      % endif
+#event: review_vacated_status
+#question: |
+#  Review vacated status information
+#review:
+ # - Edit: set_vacated_status
+  #  button: |
+  #    **Tenant status**
+#
+#      % for party in other_parties:
+#      * **${ party.name_full() }**:  
+#        % if defined("party.vacated"):
+#        ${ "Vacated" if party.vacated else "Still living there" }
+#        % else:
+#        Not answered
+#        % endif
+#      % endfor
+#  - Edit: vacated_date
+#    button: |
+#      **Date tenant moved out**  
+#      ${ vacated_date }
 ---
 id: additional party name 
 sets:
