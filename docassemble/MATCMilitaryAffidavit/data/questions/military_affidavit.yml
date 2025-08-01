@@ -127,6 +127,7 @@ comment: |
 id: interview_order_military_affidavit
 mandatory: True
 code: |
+  al_intro_screen
   military_affidavit_intro
   user_role
   if user_role == "attorney":
