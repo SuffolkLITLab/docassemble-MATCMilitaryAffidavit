@@ -51,7 +51,7 @@ objects:
   - concluded_service_parties: ALPeopleList.using(auto_gather=False, gathered=True)
   - military_affidavit_attachment: ALDocument.using(title="Military Affidavit", filename="military_affidavit", has_addendum=False)
   - military_affidavitr_10_attachment: ALDocument.using(title="Military Affidavit R10", filename="military_affidavitr_10", has_addendum=False)
-  - military_affidavit_proof_attachment: ALDocument.using(
+  - military_affidavit_proof_attachment: ALDocumentUpload.using(
           title="Military Affidavit Proof",
           filename="Military Affidavit Proof", 
           has_addendum=False
@@ -164,6 +164,7 @@ code: |
   in_service
   if summary_process_check == False:
     has_used_scra_site
+    military_affidavit_proof_attachment.file
   signature_date
   users[0].signature
   military_affidavit_case_name
@@ -862,7 +863,7 @@ fields:
   - Are you ready to attach a copy or screenshot now?: wants_to_attach_search_results
     datatype: yesnoradio
     show if: has_used_scra_site
-  - Attach a copy of the search results: military_affidavit_proof_attachment["final"]
+  - Attach a copy of the search results: military_affidavit_proof_attachment.file
     datatype: file
     file css class: None
     accept: |
@@ -1094,13 +1095,12 @@ code: |
   if summary_process_check:
       military_affidavitr_10_attachment.enabled = True
       military_affidavit_attachment.enabled = False
-      al_user_bundle.elements = [military_affidavitr_10_attachment]
-      al_court_bundle.elements = [military_affidavitr_10_attachment]
+      military_affidavit_proof_attachment.enabled = False
+
   else:
       military_affidavitr_10_attachment.enabled = False
       military_affidavit_attachment.enabled = True
-      al_user_bundle.elements = [military_affidavit_attachment]
-      al_court_bundle.elements = [military_affidavit_attachment]
+      military_affidavit_proof_attachment.enabled = True
 
 ---
 attachment:
