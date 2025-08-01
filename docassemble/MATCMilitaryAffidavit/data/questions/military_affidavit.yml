@@ -221,10 +221,10 @@ sets:
 id: names of opposing parties
 question: |
   % if user_started_case:
-  Name of ${ ordinal(i) } **defendant** or respondent in this
+  Name of ${ ordinal(i) } defendant or respondent in this
   matter
   % else:
-  Name of ${ ordinal(i) } **plaintiff** or petitioner in this matter
+  Name of ${ ordinal(i) } plaintiff or petitioner in this matter
   % endif
 fields:
   - code: |
@@ -233,9 +233,9 @@ fields:
 id: is there an opposing party?
 question: |
   % if al_form_type in ['starts_case','existing_case','appeal'] and user_started_case:
-  Is there a **defendant** or respondent in this case? 
+  Is there a defendant or respondent in this case? 
   % elif al_form_type in ['starts_case','existing_case','appeal']:
-  Is there a **plaintiff** or petitioner in this case?
+  Is there a plaintiff or petitioner in this case?
   % else:
   Is there someone on the other side of your dispute?
   % endif
@@ -300,7 +300,7 @@ subject: |
 content: |
   The docket number is a number that the court assigns to track your case.
   
-  If this is a **new** case, you may not have one yet. You can tell the
+  If this is a new case, you may not have one yet. You can tell the
   clerk what you know about the case if you're not sure.
 ---
 id: explanation diligent search
@@ -318,17 +318,17 @@ subquestion: |
   * ${ additional_parties }
   % endif
 fields:
-  - Do you already know the military status of **each** party in this case?: knows_status_already
+  - Do you already know the military status of each party in this case?: knows_status_already
     datatype: yesnoradio
   - note: |
       If you do not have personal knowledge of each party's military status,
-      you **must** search the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/).
+      you must search the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/).
 
       1. Copy a [link to this interview](${ interview_url() }) to return to it later. You can also 
          leave this window or tab open.
       1. Click the link to visit the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
          and search for the name of the party who you are unsure about.
-      1. **Save** a copy of the results as a PDF or take a screenshot that shows the search
+      1. Save a copy of the results as a PDF or take a screenshot that shows the search
          results. You can also print a copy and attach it to this form later.
 
         You can take a minute to do that now. The website will open in a new tab. When
@@ -347,7 +347,7 @@ data:
 continue button field: set_all_military_statuses
 id: select all statuses
 question: |
-  Select the current **military service** of **each** party in this case
+  Select the current military service of each party in this case
 subquestion: |
   For each defendant:
 
@@ -417,7 +417,7 @@ id: monthly rent amount
 question: |
  What was the monthly rent amount?
 subquestion: |
-    Please enter the dollar amount that was due **each month** for rent.  
+    Please enter the dollar amount that was due each month for rent.  
     You will have a chance to adjust this amount for individual months later if needed. 
 
 fields:
@@ -499,13 +499,13 @@ question: |
   For each month listed below, please:
 subquestion: |
   1. Verify the month name heading.  
-  2. Review the prefilled **Rent Due** amount.  
-  3. Enter the actual amount **Paid** in the **Rent Paid** box.
+  2. Review the prefilled Rent Due amount.  
+  3. Enter the actual amount Paid in the Rent Paid box.
 fields:
   - code: |
       sum([
         [
-          {"note": f"**{label}**", "item grid": {"width": 12, "breakpoint": "sm"}},
+          {"note": f"{label}", "item grid": {"width": 12, "breakpoint": "sm"}},
           {
             "field": f"rent_due_{key}",
             "label": "Rent due",
@@ -585,7 +585,7 @@ question: |
   Because you are unsure about the military status of some parties
 subquestion: |
   If you select "unsure" for any party, the judge may make you pay
-  a **bond** to protect the party's rights under the Servicemembers Civil Relief Act,
+  a bond to protect the party's rights under the Servicemembers Civil Relief Act,
   before the judge makes the judgment against the party final.
 
   ${ collapse_template(explain_military_unsure_bond) }
@@ -785,7 +785,7 @@ fields:
   - There is someone else with an interest in this case: additional_parties.there_are_any
     datatype: yesnoradio
   - note: |
-      We will call this person an **additional party** in the rest of this interview.
+      We will call this person an additional party in the rest of this interview.
     show if: additional_parties.there_are_any
 ---
 ---
