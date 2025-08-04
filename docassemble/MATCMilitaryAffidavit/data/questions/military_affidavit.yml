@@ -678,18 +678,26 @@ code: |
 ---
 id: summary_process_check
 question: |
-  Is this case about removing someone from a home or apartment? (also known as a Summary Process case in Massachusetts)?
+  Is this a Summary Process Case?
 subquestion: |
-   In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing Court when a landlord is seeking to remove a tenant from a rental property.
-
-   To learn more about Summary Process cases and whether your situation qualifies, visit: https://www.mass.gov/info-#details/overview-of-summary-process-for-tenants
-  
+  ${collapse_template(sumpro_ex)}  
 fields:
-  - "Is this an eviction (Summary Process) case?": summary_process_check
+  - "Select no for any other case type": summary_process_check
     datatype: yesnoradio
 ---
 code: |
   address_outside_ma = users[0].address.state.upper() != "MA"
+---
+template: sumpro_ex
+subject: |
+  What is a Summary Process Case?
+content: |
+  In Massachusetts, an eviction case is legally called a "Summary Process" case. These are typically filed in Housing Court when a landlord is seeking to remove a tenant from a rental property. Common causes of summary process cases include: Tenant not paying rent, tenant breaking the lease, tenant not leaving after the lease ends and the tenant not leaving after proper notice.
+  If your goal is to remove someone from a rental unit, it is likely a summary process case.
+
+   
+
+
 ---
 id: address_out_of_state_warning
 question: |
