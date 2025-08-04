@@ -279,7 +279,7 @@ id: is_there_helper
 question: |
   Are you receiving help from an attorney to complete this form?
 fields:
-  - Helper?: is_there_helper
+  - "": is_there_helper
     datatype: yesnoradio
 ---
 id: helper_attorney
