@@ -175,6 +175,18 @@ code: |
   concluded_service_parties[i].service_ended_date
   concluded_service_parties[i].complete = True
 ---
+template: proof_of_status
+subject: |
+  What counts as proof of military status?
+content: |
+  You can demonstrate military status through the following:
+  
+  - SCRA website search: Use the official search portal and attach the result (PDF or screenshot).(https://scra.dmdc.osd.mil/)
+  - A statement of your own knowledge: For example, the person works in civillian employment, or has shared their status with you. Here a simple clear statement on this form is sufficient. 
+
+  
+
+---
 id: Military_Affidavit
 continue button field: military_affidavit_intro
 question: |
@@ -189,14 +201,11 @@ subquestion: |
 
   This affidavit has to be filed even if none of the parties are
   in the military right now.
-
-    How do you know the defendant's military status? 
+    
+  You will be required to tell the court how you know by providing proof of the defendant's military status. If you do not have this knowledge you cannot complete the military affiadvit.
   
-  You will be required to provide proof of how you know the defendant's military status later in this interview. 
-
-  Use the best information you know. But you must explain either that: 
-  * you know the military status of each party, or 
-  * you searched the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/) to find out their military status.
+  
+  ${ collapse_template(proof_of_status) }
 ---
 id: User Type
 question: |
