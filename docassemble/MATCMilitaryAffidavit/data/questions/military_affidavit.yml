@@ -152,11 +152,9 @@ code: |
     bond_agreement_i_understand
   #review_military_status
   if summary_process_check:
-    vacated_status
-    if vacated_status:
-      set_vacated_status
-      vacated_date
-      vacated_parties
+    set_vacated_status
+    vacated_date
+    vacated_parties
     monthly_rent
     set_unpaid_rent_month_year
     rent_worksheet
@@ -660,14 +658,14 @@ code: |
 #  - In active service?: |
 #      next((k for d in military_status_labels for k, v in d.items() if v #== row_item.military_status), "")
 ---
-id: vacated status question 
-question: |
-  Have any of the tenants moved out of the property?
-
-  "Vacated" means the tenant has permanently left the property and no longer lives there. 
-fields:
-  - "Has at least one tenant permanently moved out?": vacated_status
-    datatype: yesnoradio
+#id: vacated status question 
+#question: |
+#  Have any of the tenants moved out of the property?
+#
+#  "Vacated" means the tenant has permanently left the property and no #longer lives there. 
+#fields:
+#  - "Has at least one tenant permanently moved out?": vacated_status
+#    datatype: yesnoradio
 ---
 sets:
   - summary_process_check
