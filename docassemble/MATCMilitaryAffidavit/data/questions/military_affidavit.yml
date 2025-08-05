@@ -153,7 +153,6 @@ code: |
   #review_military_status
   if summary_process_check:
     set_vacated_status
-    vacated_date
     vacated_parties
     monthly_rent
     set_unpaid_rent_month_year
@@ -729,8 +728,6 @@ validation code: |
 id: set_vacated_status
 question: |
   Tell us whether each defendant has vacated the premises:
-subquestion: |
-  Select "Vacated" if the person has permanently left the home and no longer lives there. 
 fields:
   - code: |
       [
@@ -745,21 +742,16 @@ fields:
           "choices": [
             {"label": "Vacated", "value": True},
             {"label": "Still living there", "value": False}
-          ]
+          ],
         }
         for party in sorted(other_parties)
       ]
+  - vacated date: vacated_date
+    datatype: ThreePartsDate
+    js show if: |
+      val("other_parties[0].vacated") || val("other_parties[1].vacated") || val("other_parties[2].vacated") || val("other_parties[3].vacated") || val("other_parties[4].vacated") || val("other_parties[5].vacated")
 continue button field: set_vacated_status
 ---
-id: vacated_date
-question: |
-  When did the last tenant move out?
-fields:
-  - "Vacated date": vacated_date
-    datatype: ThreePartsDate
-continue button field: vacated_date
----
-
 code: |
   vacated_parties = [party.name_full() for party in other_parties if getattr(party, "vacated", None) is True]
   parties_vacated = len(vacated_parties) > 0
