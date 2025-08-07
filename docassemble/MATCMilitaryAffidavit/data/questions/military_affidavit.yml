@@ -160,7 +160,6 @@ code: |
   in_service
   if summary_process_check == False:
     has_used_scra_site
-    military_affidavit_proof_attachment.file
   signature_date
   users[0].signature
   military_affidavit_case_name
@@ -1080,7 +1079,6 @@ code: |
   else:
       military_affidavitr_10_attachment.enabled = False
       military_affidavit_attachment.enabled = True
-      military_affidavit_proof_attachment.enabled = True
 
 ---
 attachment:
