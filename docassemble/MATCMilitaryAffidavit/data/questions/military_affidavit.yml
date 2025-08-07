@@ -352,7 +352,7 @@ data:
 continue button field: set_all_military_statuses
 id: select all statuses
 question: |
-  Select the current **military service** of **each** defendant in this case
+  Select the current military service for each person presented
 subquestion: |
   For each defendant:
 
@@ -375,7 +375,7 @@ fields:
           "datatype": "radio",
           "choices": military_status_labels
         }
-        for party in sorted(defendants)
+        for party in sorted(defendants + additional_parties)
       ]
 ---
 template: explain_military_service
