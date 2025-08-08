@@ -839,9 +839,11 @@ fields:
   - note: |
       You need to give the court a copy of your search results
     show if: has_used_scra_site
-  - Are you ready to attach a copy or screenshot now?: wants_to_attach_search_results
+  - "Do you have the search results ready to upload now?": wants_to_attatch_results
     datatype: yesnoradio
     show if: has_used_scra_site
+    help: |
+      You must upload proof of your search before continuing. The file can be a PDF or screenshot. 
   - Attach a copy of the search results: military_affidavit_proof_attachment.file
     datatype: file
     file css class: None
