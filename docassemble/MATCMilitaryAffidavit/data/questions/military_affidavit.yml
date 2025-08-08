@@ -130,13 +130,13 @@ code: |
   al_intro_screen
   military_affidavit_intro
   user_role
-  docket_number
   if user_role == "attorney":
    attorneys.there_are_any = True
    bbo
   is_there_helper
   if is_there_helper:
     helper_attorney
+  docket_number
   users.gather()
   other_parties.gather()
   additional_parties.gather()
