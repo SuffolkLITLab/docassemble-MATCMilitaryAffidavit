@@ -199,9 +199,9 @@ subquestion: |
 
   You have two options:
  
-  1. **Use the SCRA Website** — If you know the defendant’s date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
+  1. Use the SCRA Website — If you know the defendant’s date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
  
-  2. **Use another method** — If you didn’t use the SCRA Website, explain how else you found out the defendant’s military status. For example, you may have spoken to the
+  2. Use another method — If you didn’t use the SCRA Website, explain how else you found out the defendant’s military status. For example, you may have spoken to the
   
   
   ${ collapse_template(proof_of_status) }
@@ -304,7 +304,7 @@ subject: |
 content: |
   The docket number is a number that the court assigns to track your case.
   
-  If this is a **new** case, you may not have one yet. You can tell the
+  If this is a new case, you may not have one yet. You can tell the
   clerk what you know about the case if you're not sure.
 ---
 id: explanation diligent search
@@ -322,17 +322,17 @@ subquestion: |
   * ${ additional_parties }
   % endif
 fields:
-  - Do you already know the military status of **each** party in this case?: knows_status_already
+  - Do you already know the military status of each party in this case?: knows_status_already
     datatype: yesnoradio
   - note: |
       If you do not have personal knowledge of each party's military status,
-      you **must** search the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/).
+      you must search the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/).
 
       1. Copy a [link to this interview](${ interview_url() }) to return to it later. You can also 
          leave this window or tab open.
       1. Click the link to visit the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
          and search for the name of the party who you are unsure about.
-      1. **Save** a copy of the results as a PDF or take a screenshot that shows the search
+      1. Save a copy of the results as a PDF or take a screenshot that shows the search
          results. You can also print a copy and attach it to this form later.
 
         You can take a minute to do that now. The website will open in a new tab. When
@@ -421,7 +421,7 @@ id: monthly rent amount
 question: |
  What was the monthly rent amount?
 subquestion: |
-    Please enter the dollar amount that was due **each month** for rent.  
+    Please enter the dollar amount that was due each month for rent.  
     You will have a chance to adjust this amount for individual months later if needed. 
 
 fields:
@@ -503,8 +503,8 @@ question: |
   For each month listed below, please:
 subquestion: |
   1. Verify the month name heading.  
-  2. Review the prefilled **Rent Due** amount.  
-  3. Enter the actual amount **Paid** in the **Rent Paid** box.
+  2. Review the prefilled Rent Due amount.  
+  3. Enter the actual amount Paid in the Rent Paid box.
 fields:
   - code: |
       sum([
@@ -589,7 +589,7 @@ question: |
   Because you are unsure about the military status of some parties
 subquestion: |
   If you select "unsure" for any party, the judge may make you pay
-  a **bond** to protect the party's rights under the Servicemembers Civil Relief Act,
+  a bond to protect the party's rights under the Servicemembers Civil Relief Act,
   before the judge makes the judgment against the party final.
 
   ${ collapse_template(explain_military_unsure_bond) }
@@ -765,7 +765,7 @@ fields:
   - There is someone else with an interest in this case: additional_parties.there_are_any
     datatype: yesnoradio
   - note: |
-      We will call this person an **additional party** in the rest of this interview.
+      We will call this person an additional party in the rest of this interview.
     show if: additional_parties.there_are_any
 ---
 ---
@@ -775,7 +775,7 @@ fields:
 #review:
  # - Edit: set_vacated_status
   #  button: |
-  #    **Tenant status**
+  #    Tenant status
 #
 #      % for party in other_parties:
 #      * **${ party.name_full() }**:  
@@ -787,7 +787,7 @@ fields:
 #      % endfor
 #  - Edit: vacated_date
 #    button: |
-#      **Date tenant moved out**  
+#      Date tenant moved out  
 #      ${ vacated_date }
 ---
 id: additional party name 
@@ -871,8 +871,7 @@ question: |
 review:
   - Edit: trial_court
     button: |
-      **Trial court**
-  
+      Trial court  
       % if defined("trial_court.department"):
       * department: ${ trial_court.department }
       % endif
@@ -881,21 +880,21 @@ review:
       % endif
   - Edit: users.revisit
     button: |
-      **People on your side of the case**
+      People on your side of the case
 
       % for item in users:
         * ${ item }
       % endfor
   - Edit: other_parties.revisit
     button: |
-      **People on the other side of the case**
+      People on the other side of the case
 
       % for item in other_parties:
         * ${ item }
       % endfor
   - Edit: additional_parties.revisit
     button: |
-      **Other people with an interest in this case**
+      Other people with an interest in this case
 
       % for item in additional_parties:
         * ${ item }
@@ -903,7 +902,7 @@ review:
 
   - Edit: exhibit_attachment.exhibits.has_exhibits
     button: |
-      **Is the attachment included?**
+      Is the attachment included?
 
       % if exhibit_attachment.exhibits.has_exhibits:
       Yes
@@ -911,7 +910,7 @@ review:
       No
       % endif   
   - note: |
-      **Supporting exhibits**:
+      Supporting exhibits:
       
       % if exhibit_attachment.exhibits.there_are_any:
       ${ exhibit_attachment.exhibits.in_progress_exhibits }
@@ -924,13 +923,13 @@ review:
     show if: exhibit_attachment.exhibits.has_exhibits
   - Edit: docket_number.revisit
     button: |
-      **Docket numbers**
+      Docket numbers
 
       % for item in docket_number:
         * ${ item }
       % endfor
   - note: |
-      **Military status of parties**
+      Military status of parties
 
       Here is what you told us:
 
@@ -949,7 +948,7 @@ review:
       % endif
 
       % if len(( users.union(other_parties + additional_parties).difference(serving_parties + concluded_service_parties + unsure_serving_parties))):
-      That means that you know the following parties are **not** serving in the military:
+      That means that you know the following parties are not serving in the military:
 
       * ${ comma_and_list( users.union(other_parties + additional_parties).difference(serving_parties + concluded_service_parties + unsure_serving_parties)) }
       % endif
@@ -962,11 +961,11 @@ review:
 
   - Edit: signature_date
     button: |
-      **Date of signature**:
+      Date of signature:
       ${ signature_date }
   - Edit: bbo
     button: |
-      **BBO number (if you are an attorney)**:
+      BBO number (if you are an attorney):
       ${ bbo }
 ---
 id: revisit exhibit_attachment
