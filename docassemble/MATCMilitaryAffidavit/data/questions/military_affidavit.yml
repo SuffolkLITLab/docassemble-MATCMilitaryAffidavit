@@ -734,7 +734,7 @@ fields:
         }
         for party in sorted(other_parties)
       ]
-  - vacated date: vacated_date
+  - Select the date the defendant vacated the property: vacated_date
     datatype: ThreePartsDate
     js show if: |
       val("other_parties[0].vacated") || val("other_parties[1].vacated") || val("other_parties[2].vacated") || val("other_parties[3].vacated") || val("other_parties[4].vacated") || val("other_parties[5].vacated")
