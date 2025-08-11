@@ -136,10 +136,10 @@ code: |
   is_there_helper
   if is_there_helper:
     helper_attorney
+  docket_number
   users.gather()
   other_parties.gather()
   additional_parties.gather()
-  docket_number
   if dont_know_docket_number:
     summary_process_check
   trial_court
@@ -268,9 +268,24 @@ fields:
   - no label: users.there_is_another
     datatype: yesnoradio
 ---
+template: explain_docket_number
+subject: What is a docket number?
+content: |
+  The docket number is a unique identifier that the court assigns to your case.
+
+  A Massachusetts Trial Court docket number will look something like this:
+
+  15H84CV000436 or 1401CV001026
+
+  The docket number is made of of these parts:
+  Two Digit Year > Two Digit Court Code > Two Letter Case Type > Six Digit Sequence Number
+
+---
 id: docket number
 question: |
   What is the docket number for your case?
+subquestion: |
+  ${ collapse_template(explain_docket_number)}
 fields:
   - I don't know the docket number: dont_know_docket_number
     datatype: yesno    
