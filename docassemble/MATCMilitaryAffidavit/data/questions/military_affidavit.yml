@@ -176,7 +176,7 @@ subject: |
 content: |
   You can demonstrate military status through the following:
   
-  - SCRA website search: Use the official search portal and attach the result (PDF or screenshot).(https://scra.dmdc.osd.mil/)
+  - SCRA website search: Use the official search portal and attach the result (PDF or screenshot).
   - A statement of your own knowledge: For example, the person works in civillian employment, or has shared their status with you. Here a simple clear statement on this form is sufficient. 
 
 ---
@@ -200,9 +200,6 @@ subquestion: |
   You have two options:
  
   1. Use the SCRA Website — If you know the defendant’s date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
- 
-  2. Use another method — If you didn’t use the SCRA Website, explain how else you found out the defendant’s military status. For example, you may have spoken to the
-  
   
   ${ collapse_template(proof_of_status) }
 ---
