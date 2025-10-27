@@ -140,8 +140,8 @@ code: |
   users.gather()
   other_parties.gather()
   additional_parties.gather()
-  if dont_know_docket_number:
-    summary_process_check
+  #if dont_know_docket_number:
+    #summary_process_check
   trial_court
   set_all_military_statuses
   if any([party.military_status == "past" for party in other_parties + additional_parties]):
@@ -149,20 +149,20 @@ code: |
   if any([party.military_status == "unknown" for party in other_parties + additional_parties]):
     bond_agreement_i_understand
   #review_military_status
-  if summary_process_check:
-    set_vacated_status
-    vacated_parties
-    monthly_rent
-    set_unpaid_rent_month_year
-    rent_worksheet
-    months_unpaid_total
-    uniform_seen
+  #if summary_process_check:
+    #set_vacated_status
+    #vacated_parties
+    #monthly_rent
+    #set_unpaid_rent_month_year
+    #rent_worksheet
+    #months_unpaid_total
+    #uniform_seen
   in_service
-  if summary_process_check == False:
-    has_used_scra_site
+  #if summary_process_check == False:
+    #has_used_scra_site
   signature_date
   users[0].signature
-  military_affidavit_case_name
+  #military_affidavit_case_name
   interview_order_military_affidavit = True
 ---
 code: |
@@ -862,16 +862,18 @@ fields:
       You must upload proof of your search before continuing. The file can be a PDF or screenshot. 
   - Attach a copy of the search results: military_affidavit_proof_attachment.file
     datatype: file
+    required: False
     file css class: None
     accept: |
       ".pdf, .png, application/pdf, image/*"
-    show if: wants_to_attach_search_results
+    #show if: wants_to_attach_results
   - "Explain how you used the website in your search (optional if evidence attached)": used_scra_site_facts
     required: False
     input type: area
     show if: has_used_scra_site
   - Explain how you know: not_used_scra_site_facts
     input type: area
+    required: False
     show if:
       variable: has_used_scra_site
       is: False
@@ -1087,15 +1089,16 @@ code: |
   # Leave it undefined to use the default case name of petitioner v respondent or In the interests of respondent
   military_affidavit_case_name = ""
 ---
-code: |
-  if summary_process_check:
-      military_affidavitr_10_attachment.enabled = True
-      military_affidavit_attachment.enabled = False
-      military_affidavit_proof_attachment.enabled = False
+#code: |
+#  if summary_process_check:
+#      military_affidavitr_10_attachment.enabled = True
+#      military_affidavit_attachment.enabled = False
+#      military_affidavit_proof_attachment.enabled = False
+#
+#  else:
+#      military_affidavitr_10_attachment.enabled = False
+#      military_affidavit_attachment.enabled = True
 
-  else:
-      military_affidavitr_10_attachment.enabled = False
-      military_affidavit_attachment.enabled = True
 
 ---
 attachment:
