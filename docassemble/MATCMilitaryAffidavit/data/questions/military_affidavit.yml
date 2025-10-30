@@ -159,7 +159,9 @@ code: |
     #uniform_seen
   in_service
   #if summary_process_check == False:
-    #has_used_scra_site
+  has_used_scra_site
+  used_scra_site_facts
+  not_used_scra_site_facts
   signature_date
   users[0].signature
   #military_affidavit_case_name
@@ -433,159 +435,149 @@ fields:
       ]
 continue button field: set_concluded_service_dates
 ---
-id: monthly rent amount
-question: |
- What was the monthly rent amount?
-subquestion: |
-    Please enter the dollar amount that was due each month for rent.  
-    You will have a chance to adjust this amount for individual months later if needed. 
-
-fields:
-  - "Monthly rent amount:": monthly_rent
-    datatype: currency
+#id: monthly rent amount
+#question: |
+# What was the monthly rent amount?
+#subquestion: |
+#    Please enter the dollar amount that was due each month for rent.  
+#    You will have a chance to adjust this amount for individual months #later if needed. 
+#fields:
+#  - "Monthly rent amount:": monthly_rent
+#    datatype: currency
 ---
-id: rent_unpaid_month_year_prep
-code: |
-  import calendar
-  from datetime import date
-  months_choices = [
-    {"label": calendar.month_name[m], "value": m}
-    for m in range(1, 13)
-  ]
-  this_year = date.today().year
-  years_choices = [
-    {"label": str(y), "value": y}
-    for y in range(this_year - 5, this_year + 1)
-  ]
+#id: rent_unpaid_month_year_prep
+#code: |
+#  import calendar
+#  from datetime import date
+#  months_choices = [
+#    {"label": calendar.month_name[m], "value": m}
+#    for m in range(1, 13)
+#  ]
+#  this_year = date.today().year
+#  years_choices = [
+#    {"label": str(y), "value": y}
+#    for y in range(this_year - 5, this_year + 1)
+#  ]
 ---
-id: rent_unpaid_month_year
-question: |
-   After filing the lawsuit, when did the unpaid rent period begin and end?
-subquestion: |
-  Please enter the first and last month and year that rent went unpaid after you filed the lawsuit.
-fields:
-  - code: |
-      [
-        {
-          "field": "unpaid_start_month",
-          "label": "First month",
-          "datatype": "select",
-          "choices": months_choices
-        },
-        {
-          "field": "unpaid_start_year",
-          "label": "Year",
-          "datatype": "select",
-          "choices": years_choices
-        },
-        {
-          "field": "unpaid_end_month",
-          "label": "Last month",
-          "datatype": "select",
-          "choices": months_choices
-        },
-        {
-          "field": "unpaid_end_year",
-          "label": "Year",
-          "datatype": "select",
-          "choices": years_choices
-        }
-      ]
-continue button field: set_unpaid_rent_month_year
+#id: rent_unpaid_month_year
+#question: |
+#   After filing the lawsuit, when did the unpaid rent period begin and #end?
+#  Please enter the first and last month and year that rent went unpaid #after you filed the lawsuit.
+#fields:
+#  - code: |
+#        {
+#          "field": "unpaid_start_month",
+#          "label": "First month",
+#          "datatype": "select",
+#       {
+#          "field": "unpaid_start_year",
+#         "choices": years_choices
+#        },
+#        {
+#         "datatype": "select",
+#          "choices": months_choices
+#        },
+#        {
+#          "field": "unpaid_end_year",
+#          "label": "Year",
+#          "datatype": "select",
+#          "choices": years_choices
+#        }
+#      ]
+#continue button field: set_unpaid_rent_month_year
 ---
-id: set_months_to_calc
-code: |
-  from datetime import date
-  # Cast the dropdown strings to ints (day=1)
-  start = date(int(unpaid_start_year), int(unpaid_start_month), 1)
-  end   = date(int(unpaid_end_year),   int(unpaid_end_month),   1)
-  # Store the first month and year combo as a label
-  first_month_year = start.strftime("%B %Y")
-  months_to_calc = []
-  current = start
-  while current <= end:
-      key = current.strftime("%Y_%m")
-      label = current.strftime("%B %Y")
-      months_to_calc.append((key, label))
-      # Advance one month
-      if current.month == 12:
-          current = current.replace(year=current.year+1, month=1)
-      else:
-          current = current.replace(month=current.month+1)
-continue button field: set_months_to_calc
+#code: |
+#  from datetime import date
+#  # Cast the dropdown strings to ints (day=1)
+#  start = date(int(unpaid_start_year), int(unpaid_start_month), 1)
+#  end   = date(int(unpaid_end_year),   int(unpaid_end_month),   1)
+#  # Store the first month and year combo as a label
+#  first_month_year = start.strftime("%B %Y")
+#  months_to_calc = []
+#  current = start
+#  while current <= end:
+#      key = current.strftime("%Y_%m")
+#      label = current.strftime("%B %Y")
+#      months_to_calc.append((key, label))
+#      # Advance one month
+#      if current.month == 12:
+#          current = current.replace(year=current.year+1, month=1)
+#      else:
+#          current = current.replace(month=current.month+1)
+#continue button field: set_months_to_calc
 ---
-id: rent_worksheet
-question: |
-  For each month listed below, please:
-subquestion: |
-  1. Verify the month name heading.  
-  2. Review the prefilled Rent Due amount.  
-  3. Enter the actual amount Paid in the Rent Paid box.
-fields:
-  - code: |
-      sum([
-        [
-          {"note": f"**{label}**", "item grid": {"width": 12, "breakpoint": "sm"}},
-          {
-            "field": f"rent_due_{key}",
-            "label": "Rent due",
-            "datatype": "currency",
-            "default": monthly_rent,
-            "item grid": {"width": 6, "breakpoint": "sm"}
-          },
-          {
-            "field": f"rent_paid_{key}",
-            "label": "Rent paid",
-            "datatype": "currency",
-            "item grid": {"width": 6, "breakpoint": "sm"}
-          }
-        ]
-        for key, label in months_to_calc
-      ], [])
-continue button field: rent_worksheet
+#id: rent_worksheet
+#question: |
+#  For each month listed below, please:
+#subquestion: |
+#  1. Verify the month name heading.  
+#  2. Review the prefilled Rent Due amount.  
+#  3. Enter the actual amount Paid in the Rent Paid box.
+#fields:
+#  - code: |
+#      sum([
+#        [
+#          {"note": f"**{label}**", "item grid": {"width": 12, #"breakpoint": "sm"}},
+#          {
+#            "field": f"rent_due_{key}",
+#            "label": "Rent due",
+#            "datatype": "currency",
+#            "default": monthly_rent,
+#            "item grid": {"width": 6, "breakpoint": "sm"}
+#          },
+#          {
+#            "field": f"rent_paid_{key}",
+#            "label": "Rent paid",
+#            "datatype": "currency",
+#            "item grid": {"width": 6, "breakpoint": "sm"}
+#          }
+#        ]
+#        for key, label in months_to_calc
+#      ], [])
+#continue button field: rent_worksheet
 ---
-id: calculate_monthly_unpaid_and_paid
-code: |
-  # initialize running totals
-  months_unpaid_total = 0
-  months_paid_total = 0
-
-  for i, (key, label) in enumerate(months_to_calc):
-      # look up amount paid this month (defaults to 0)
-      paid = locals().get(f"rent_paid_{key}", 0) or 0
-      # calculate what’s still owed
-      unpaid = monthly_rent - paid
-
-      # dynamically set month1, month1_paid, month1_unpaid, month2, month2_paid, ...
-      vars()[f"month{i+1}"] = label
-      vars()[f"month{i+1}_paid"] = paid
-      vars()[f"month{i+1}_unpaid"] = unpaid
-
-      # add to grand totals
-      months_paid_total += paid
-      months_unpaid_total += unpaid
-
-  # expose the grand totals
-  vars()["months_unpaid_total"] = months_unpaid_total
-  vars()["months_paid_total"] = months_paid_total
+#id: calculate_monthly_unpaid_and_paid
+#code: |
+#  # initialize running totals
+#  months_unpaid_total = 0
+#  months_paid_total = 0
+#
+#  for i, (key, label) in enumerate(months_to_calc):
+#      # look up amount paid this month (defaults to 0)
+#      paid = locals().get(f"rent_paid_{key}", 0) or 0
+#      # calculate what’s still owed
+#      unpaid = monthly_rent - paid
+#
+#      # dynamically set month1, month1_paid, month1_unpaid, month2, #month2_paid, ...
+#      vars()[f"month{i+1}"] = label
+#      vars()[f"month{i+1}_paid"] = paid
+#      vars()[f"month{i+1}_unpaid"] = unpaid
+#
+#      # add to grand totals
+#      months_paid_total += paid
+#      months_unpaid_total += unpaid
+#
+#  # expose the grand totals
+#  vars()["months_unpaid_total"] = months_unpaid_total
+#  vars()["months_paid_total"] = months_paid_total
 ---
-id: R10 facts supporting knowledge of service 
-question: |
-  Do you have any facts that show the defendant's military service status?
-subquestion: |
-  Please check all that apply:
-fields:
-  - "I saw the defendant in a military uniform.": uniform_seen
-    datatype: yesno
-  - "The defendant works in civilian employment.": civillian_seen
-    datatype: yesno
-  - "The defendant has acknowledged their military status.": defendant_acknowledge
-    datatype: yesno
-  - "I have other facts or reasons that show the defendant(s) military status.": other_facts
-    datatype: yesno
-  - "Please describe the other facts here:": other_facts_text
-    maxlength: 120
-    show if: other_facts
+#id: R10 facts supporting knowledge of service 
+#question: |
+#  Do you have any facts that show the defendant's military service status?
+#subquestion: |
+#  Please check all that apply:
+#fields:
+#  - "I saw the defendant in a military uniform.": uniform_seen
+#    datatype: yesno
+#  - "The defendant works in civilian employment.": civillian_seen
+#    datatype: yesno
+#  - "The defendant has acknowledged their military status.": #defendant_acknowledge
+#    datatype: yesno
+#  - "I have other facts or reasons that show the defendant(s) military #status.": other_facts
+#    datatype: yesno
+#  - "Please describe the other facts here:": other_facts_text
+#    maxlength: 120
+#    show if: other_facts
 ---
 code: |
   # Assume we're only checking one defendant at a time (can be adjusted for lists)
@@ -852,31 +844,27 @@ subquestion: |
 fields:
   - "Did you use the Servicemembers Civil Relief Act Website?": has_used_scra_site
     datatype: yesnoradio
-  - note: |
-      You need to give the court a copy of your search results
-    show if: has_used_scra_site
-  - "Do you have the search results ready to upload now?": wants_to_attatch_results
-    datatype: yesnoradio
-    show if: has_used_scra_site
-    help: |
-      You must upload proof of your search before continuing. The file can be a PDF or screenshot. 
-  - Attach a copy of the search results: military_affidavit_proof_attachment.file
+
+---  
+id: Used SCRA
+question: Because you used the SCRA Webstite...
+fields:
+  - Attach a copy of the search results if you have them: military_affidavit_proof_attachment.file
     datatype: file
     required: False
     file css class: None
     accept: |
       ".pdf, .png, application/pdf, image/*"
-    #show if: wants_to_attach_results
   - "Explain how you used the website in your search (optional if evidence attached)": used_scra_site_facts
     required: False
     input type: area
-    show if: has_used_scra_site
+---
+id: not Used SCRA
+question: Because you did not use the SCRA Website...
+fields:
   - Explain how you know: not_used_scra_site_facts
     input type: area
     required: False
-    show if:
-      variable: has_used_scra_site
-      is: False
     help: |
       For example: I know the party personally.
 ---
