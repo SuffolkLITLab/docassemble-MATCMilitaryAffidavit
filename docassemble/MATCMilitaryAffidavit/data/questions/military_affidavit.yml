@@ -56,7 +56,8 @@ objects:
           filename="Military Affidavit Proof", 
           has_addendum=False
         )
-  - al_user_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment, military_affidavit_proof_attachment], filename="military_affidavit", title="All forms to download for your records", enabled=True)
+  - military_affidavit_next_steps: ALDocument.using(title="Next steps & filing instructions", filename="military_affidavit_next_steps", has_addendum=False, enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment,military_affidavit_next_steps, military_affidavit_proof_attachment], filename="military_affidavit", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment, military_affidavit_proof_attachment], filename="military_affidavit", title="All forms to deliver to court", enabled=True)
 ---
 sections:
@@ -1087,7 +1088,13 @@ code: |
 #      military_affidavitr_10_attachment.enabled = False
 #      military_affidavit_attachment.enabled = True
 
-
+---
+attachment:
+  name: Next steps & filing instructions
+  filename: military_affidavit_next_steps
+  variable name: military_affidavit_next_steps[i]
+  skip undefined: True
+  docx template file: military_affidavit_next_steps.docx
 ---
 attachment:
   name: military affidavit rule 10
