@@ -45,7 +45,6 @@ code: |
 ---
 objects:
   - other_parties: ALPeopleList
-  - additional_parties: ALPeopleList
   - serving_parties: ALPeopleList
   - unsure_serving_parties: ALPeopleList.using(auto_gather=False, gathered=True)
   - concluded_service_parties: ALPeopleList.using(auto_gather=False, gathered=True)
@@ -139,14 +138,13 @@ code: |
   docket_number
   users.gather()
   other_parties.gather()
-  additional_parties.gather()
   #if dont_know_docket_number:
     #summary_process_check
   trial_court
   set_all_military_statuses
-  if any([party.military_status == "past" for party in other_parties + additional_parties]):
+  if any([party.military_status == "past" for party in other_parties]):
     set_concluded_service_dates
-  if any([party.military_status == "unknown" for party in other_parties + additional_parties]):
+  if any([party.military_status == "unknown" for party in other_parties]):
     bond_agreement_i_understand
   #review_military_status
   #if summary_process_check:
@@ -156,7 +154,7 @@ code: |
     #set_unpaid_rent_month_year
     #rent_worksheet
     #months_unpaid_total
-    #uniform_seen
+    #uniform_seen 
   in_service
   #if summary_process_check == False:
   has_used_scra_site
@@ -225,11 +223,6 @@ fields:
       variable: user_role
       is: "attorney"
 ---
-code: |
-  other_parties.there_are_any = True
-  if len(other_parties) == 0:
-      other_parties.appendObject()
----
 sets:
   - other_parties[i].name.first
   - other_parties[i].name.last
@@ -238,7 +231,7 @@ sets:
 id: names of opposing parties
 question: |
   % if user_started_case:
-  Name of ${ ordinal(i) } defendant or respondent in this
+  Name of ${ ordinal(i) } defendant, respondent, or interested party in this
   matter
   % else:
   Name of ${ ordinal(i) } plaintiff or petitioner in this matter
@@ -250,7 +243,7 @@ fields:
 id: any other opposing parties
 question: |
   % if user_started_case:
-  Is there any other defendant or respondent in this
+  Is there any other defendant, respondent, or interested party in this
   matter?
   % else:
   Is there any other plaintiff or petitioner in this matter?
@@ -258,6 +251,15 @@ question: |
 fields:
   - no label: other_parties.there_is_another
     datatype: yesnoradio
+---
+code: |
+  other_parties.there_are_any = len(other_parties) > 0
+
+---
+code: |
+  other_parties.there_are_any = True
+  if len(other_parties) == 0:
+      other_parties.appendObject()
 ---
 id: any other users
 question: |
@@ -336,9 +338,6 @@ subquestion: |
   % if len(other_parties):
   * ${ other_parties }
   % endif
-  % if len(additional_parties):
-  * ${ additional_parties }
-  % endif
 fields:
   - Do you already know the military status of each party in this case?: knows_status_already
     datatype: yesnoradio
@@ -392,7 +391,7 @@ fields:
           "datatype": "radio",
           "choices": military_status_labels
         }
-        for party in sorted(defendants + additional_parties)
+        for party in sorted(other_parties)
       ]
 ---
 template: explain_military_service
@@ -430,7 +429,7 @@ fields:
         }
         for party
         in
-        sorted(other_parties + additional_parties)          
+        sorted(other_parties)          
         if party.military_status == "past"
       ]
 continue button field: set_concluded_service_dates
@@ -581,7 +580,7 @@ continue button field: set_concluded_service_dates
 ---
 code: |
   # Assume we're only checking one defendant at a time (can be adjusted for lists)
-  for party in other_parties + additional_parties:
+  for party in other_parties:
       if uniform_seen:
           party.military_status = "Active Duty"
       elif civillian_seen or defendant_acknowledge:
@@ -624,14 +623,12 @@ sets:
   - in_service
   - unable_service
 code: |
-  # build a single list of all parties
-  all_parties = list(users.union(other_parties + additional_parties).difference([ users[0] ]))
 
   # split them out by status
-  serving_list = [p.name_full() for p in all_parties if p.military_status == 'yes']
-  past_list    = [p.name_full() for p in all_parties if p.military_status == 'past']
-  unsure_list  = [p.name_full() for p in all_parties if p.military_status == 'unknown']
-  no_list      = [p.name_full() for p in all_parties if p.military_status == 'no']
+  serving_list = [p.name_full() for p in other_parties if p.military_status == 'yes']
+  past_list    = [p.name_full() for p in other_parties if p.military_status == 'past']
+  unsure_list  = [p.name_full() for p in other_parties if p.military_status == 'unknown']
+  no_list      = [p.name_full() for p in other_parties if p.military_status == 'no']
 
   # now expose both the raw lists (joined as comma‐strings) and booleans
   from docassemble.base.util import comma_and_list
@@ -762,19 +759,19 @@ fields:
   - code: |
       users[0].name_fields()
 ---
-id: has additional parties
-question: |
-  Is there someone else with an interest in this case?
-subquestion: |
-  For example, if this is a guardianship or conservatorship case, you may have to list the
-  parents or other relatives of the person who needs a guardian as well
-  as your own name.
-fields:
-  - There is someone else with an interest in this case: additional_parties.there_are_any
-    datatype: yesnoradio
-  - note: |
-      We will call this person an additional party in the rest of this interview.
-    show if: additional_parties.there_are_any
+#id: has additional parties
+#question: |
+#  Is there someone else with an interest in this case?
+#subquestion: |
+#  For example, if this is a guardianship or conservatorship case, you may have to list the
+#  parents or other relatives of the person who needs a guardian as well
+#  as your own name.
+#fields:
+#  - There is someone else with an interest in this case: additional_parties.there_are_any
+#    datatype: yesnoradio
+#  - note: |
+#      We will call this person an additional party in the rest of this interview.
+#    show if: additional_parties.there_are_any
 ---
 ---
 #event: review_vacated_status
@@ -798,28 +795,28 @@ fields:
 #      Date tenant moved out  
 #      ${ vacated_date }
 ---
-id: additional party name 
-sets:
-  - additional_parties[i].name.first
-  - additional_parties[i].name.last
-  - additional_parties[i].name.middle
-  - additional_parties[i].name.suffix
-question: |
-  What is the name of the ${ ordinal(i ) } additional party in this case?
-subquestion: |
-  % if len(additional_parties.complete_elements()) >= 1:
-  You have already told us about ${ additional_parties.complete_elements() }.
-  % endif
-fields:
-  - code: |
-      additional_parties[i].name_fields()
+#id: additional party name 
+#sets:
+#  - additional_parties[i].name.first
+#  - additional_parties[i].name.last
+#  - additional_parties[i].name.middle
+#  - additional_parties[i].name.suffix
+#question: |
+#  What is the name of the ${ ordinal(i ) } additional party in this case?
+#subquestion: |
+#  % if len(additional_parties.complete_elements()) >= 1:
+#  You have already told us about ${ additional_parties.complete_elements() }.
+#  % endif
+#fields:
+#  - code: |
+#      additional_parties[i].name_fields()
 ---
 code: |
   serving_parties = DAList()
   concluded_service_parties = DAList()
   unsure_serving_parties = DAList()
 
-  for party in users + other_parties + additional_parties:
+  for party in users + other_parties:
       if hasattr(party, 'military_status'):
           if party.military_status == "Active Duty":
               serving_parties.append(party)
@@ -900,14 +897,6 @@ review:
       % for item in other_parties:
         * ${ item }
       % endfor
-  - Edit: additional_parties.revisit
-    button: |
-      Other people with an interest in this case
-
-      % for item in additional_parties:
-        * ${ item }
-      % endfor
-
   - Edit: exhibit_attachment.exhibits.has_exhibits
     button: |
       Is the attachment included?
@@ -955,10 +944,10 @@ review:
       * You do not know whether ${ unsure_serving_parties } served in the military.
       % endif
 
-      % if len(( users.union(other_parties + additional_parties).difference(serving_parties + concluded_service_parties + unsure_serving_parties))):
+      % if len(( users.union(other_parties).difference(serving_parties + concluded_service_parties + unsure_serving_parties))):
       That means that you know the following parties are not serving in the military:
 
-      * ${ comma_and_list( users.union(other_parties + additional_parties).difference(serving_parties + concluded_service_parties + unsure_serving_parties)) }
+      * ${ comma_and_list( users.union(other_parties).difference(serving_parties + concluded_service_parties + unsure_serving_parties)) }
       % endif
 
       If this is not correct, edit your responses by clicking the button below.
@@ -1089,110 +1078,107 @@ code: |
 
 
 ---
-attachment:
-  name: military affidavit rule 10
-  filename: military_affidavit rule 10
-  variable name: military_affidavitr_10_attachment[i]
-  skip undefined: True
-  pdf template file: military_affidavitr_10.pdf
-  enabled: False
-  fields:
-      - "docket_number__1": ${ docket_number }
-      - "docket_number__2": ${ docket_number }
-      - "trial_court_division__1": ${ trial_court.division }
-      - "trial_court_division__2": ${ trial_court.division }
-      - "petitioners": |
-          % if showifdef("military_affidavit_case_name"):
-          ${ military_affidavit_case_name }
-          % else:
-            % if user_ask_role == "plaintiff":
-            % if len(other_parties):
-          ${ users }
-            % else:
-          In the interests of ${ users }
-            % endif
-            % else:
-          ${ other_parties }
-            % endif
-          % endif
-      - "respondents": |
-          % if user_ask_role == "defendant":
-          ${ users }
-          % else:
-          ${ other_parties.short_list(limit=2) }
-          % endif
-      - "users1_name_full__1": ${ users[0] }
-      - "not_service": ${ not_service }
-      - "in_service": ${ in_service }
-      - "serving_parties": ${ serving_parties }
-      - "unable_service": ${ unable_service }
-      - "unsure_serving_parties": ${ unsure_serving_parties }
-      - "uniform_seen": ${ uniform_seen }
-      - "civillian_seen": ${ civillian_seen }
-      - "defendant_acknowledge": ${ defendant_acknowledge }
-      - "other_facts": ${ other_facts }
-      - "other_facts_text": ${ other_facts_text }
-      - "rent_paid": ${ months_paid_total }
-      - "unpaid_rent": ${ months_unpaid_total }
-      - "unpaid_rent_date": ${ first_month_year }
-      - "premise_occupy": ${ premise_occupy }
-      - "vacated_date": ${ vacated_date.format() }
-      - "parties_vacated": ${ parties_vacated }
-      - "vacated_parties": ${ comma_and_list(vacated_parties) }
-      - "bbo_number": ${ bbo_number }
-      - "users1_full_name__2": ${ users[0].name.full() }
-      - "signature_date": ${ signature_date }
-      - "users1_signature": ${ users[0].signature_if_final(i) }
-      - "month1_unpaid": ${ month1_unpaid }
-      - "month1": ${ month1 }
-      - "month2_unpaid": ${ month2_unpaid }
-      - "month2": ${ month2 }
-      - "month3_unpaid": ${ month3_unpaid }
-      - "month3": ${ month3 }
-      - "month4_unpaid": ${ month4_unpaid }
-      - "month4": ${ month4 }
-      - "month5_unpaid": ${ month5_unpaid }
-      - "month5": ${ month5 }
-      - "month6_unpaid": ${ month6_unpaid }
-      - "month6": ${ month6 }
-      - "month7": ${ month7 }
-      - "month7_unpaid": ${ month7_unpaid }
-      - "month8": ${ month8 }
-      - "month8_unpaid": ${ month8_unpaid }
-      - "month9": ${ month9 }
-      - "month9_unpaid": ${ month9_unpaid }
-      - "month10": ${ month10 }
-      - "month10_unpaid": ${ month10_unpaid }
-      - "month11": ${ month11 }
-      - "month11_unpaid": ${ month11_unpaid }
-      - "month12_unpaid": ${ month12_unpaid }
-      - "month12": ${ month12 }
-      - "month13": ${ month13 }
-      - "month13_unpaid": ${ month13_unpaid }
-      - "month14": ${ month14 }
-      - "month14_unpaid": ${ month14_unpaid }
-      - "month15_unpaid": ${ month15_unpaid }
-      - "month15": ${ month15 }
-      - "month16_unpaid": ${ month16_unpaid }
-      - "month16": ${ month16 }
-      - "month17": ${ month17 }
-      - "month17_unpaid": ${ month17_unpaid }
-      - "month18": ${ month18 }
-      - "month18_unpaid": ${ month18_unpaid }
-      - "month19_unpaid": ${ month19_unpaid }
-      - "month19": ${ month19 }
-      - "month20": ${ month20 }
-      - "month20_unpaid": ${ month20_unpaid }
-      - "month21": ${ month21 }
-      - "month21_unpaid": ${ month21_unpaid }
-      - "month22": ${ month22 }
-      - "month22_unpaid": ${ month22_unpaid }
-      - "month23": ${ month23 }
-      - "month23_unpaid": ${ month23_unpaid }
-      - "month24": ${ month24 }
-      - "month24_unpaid": ${ month24_unpaid }
-      - "months_total": ${ months_total }
-      - "months_unpaid_total": ${ months_unpaid_total }
+#attachment:
+#  name: military affidavit rule 10
+#  filename: military_affidavit rule 10
+#  variable name: military_affidavitr_10_attachment[i]
+#  skip undefined: True
+#  pdf template file: military_affidavitr_10.pdf
+#  enabled: False
+#  fields:
+#      - "docket_number__1": ${ docket_number }
+#      - "docket_number__2": ${ docket_number }
+#      - "trial_court_division__1": ${ trial_court.division }
+#      - "trial_court_division__2": ${ trial_court.division }
+#      - "petitioners": |
+#          % if showifdef("military_affidavit_case_name"):
+###           % if user_ask_role == "plaintiff":
+#            % if len(other_parties):
+#          ${ users }
+#            % else:
+#          In the interests of ${ users }
+#            % endif
+#            % else:
+#          ${ other_parties }
+#            % endif
+#          % endif
+#      - "respondents": |
+#          % if user_ask_role == "defendant":
+#          ${ users }
+#          % else:
+#          ${ other_parties.short_list(limit=2) }
+#          % endif
+#      - "users1_name_full__1": ${ users[0] }
+#      - "not_service": ${ not_service }
+#      - "in_service": ${ in_service }
+#      - "serving_parties": ${ serving_parties }
+#      - "unable_service": ${ unable_service }
+#      - "unsure_serving_parties": ${ unsure_serving_parties }
+#      - "uniform_seen": ${ uniform_seen }
+#      - "civillian_seen": ${ civillian_seen }
+#      - "defendant_acknowledge": ${ defendant_acknowledge }
+#      - "other_facts": ${ other_facts }
+#      - "other_facts_text": ${ other_facts_text }
+#      - "unpaid_rent": ${ months_unpaid_total }
+#      - "unpaid_rent_date": ${ first_month_year }
+#      - "premise_occupy": ${ premise_occupy }
+#      - "vacated_date": ${ vacated_date.format() }
+#      - "parties_vacated": ${ parties_vacated }
+#      - "vacated_parties": ${ comma_and_list(vacated_parties) }
+#      - "bbo_number": ${ bbo_number }
+#      - "users1_full_name__2": ${ users[0].name.full() }
+#      - "signature_date": ${ signature_date }
+#      - "users1_signature": ${ users[0].signature_if_final(i) }
+#      - "month1_unpaid": ${ month1_unpaid }
+#      - "month1": ${ month1 }
+#      - "month2_unpaid": ${ month2_unpaid }
+#      - "month2": ${ month2 }
+#      - "month3_unpaid": ${ month3_unpaid }
+#      - "month3": ${ month3 }
+#      - "month4_unpaid": ${ month4_unpaid }
+#      - "month4": ${ month4 }
+#      - "month5_unpaid": ${ month5_unpaid }
+#      - "month5": ${ month5 }
+#      - "month6_unpaid": ${ month6_unpaid }
+#      - "month6": ${ month6 }
+#      - "month7": ${ month7 }
+#      - "month7_unpaid": ${ month7_unpaid }
+#      - "month8": ${ month8 }
+#      - "month8_unpaid": ${ month8_unpaid }
+#      - "month9": ${ month9 }
+#      - "month9_unpaid": ${ month9_unpaid }
+#      - "month10": ${ month10 }
+#      - "month10_unpaid": ${ month10_unpaid }
+#      - "month11": ${ month11 }
+#      - "month11_unpaid": ${ month11_unpaid }
+#      - "month12_unpaid": ${ month12_unpaid }
+#      - "month12": ${ month12 }
+#      - "month13": ${ month13 }
+#      - "month13_unpaid": ${ month13_unpaid }
+#      - "month14": ${ month14 }
+#      - "month14_unpaid": ${ month14_unpaid }
+#      - "month15_unpaid": ${ month15_unpaid }
+#      - "month15": ${ month15 }
+#      - "month16_unpaid": ${ month16_unpaid }
+#      - "month16": ${ month16 }
+#      - "month17": ${ month17 }
+#      - "month17_unpaid": ${ month17_unpaid }
+#      - "month18": ${ month18 }
+#      - "month18_unpaid": ${ month18_unpaid }
+#      - "month19_unpaid": ${ month19_unpaid }
+#      - "month19": ${ month19 }
+#      - "month20": ${ month20 }
+#      - "month20_unpaid": ${ month20_unpaid }
+#      - "month21": ${ month21 }
+#      - "month21_unpaid": ${ month21_unpaid }
+#      - "month22": ${ month22 }
+#      - "month22_unpaid": ${ month22_unpaid }
+#      - "month23": ${ month23 }
+#      - "month23_unpaid": ${ month23_unpaid }
+#      - "month24": ${ month24 }
+#      - "month24_unpaid": ${ month24_unpaid }
+#      - "months_total": ${ months_total }
+#      - "months_unpaid_total": ${ months_unpaid_total }
 ---
 need:
   - military_affidavit_case_name
@@ -1236,15 +1222,15 @@ attachment:
       - "users1_name_full__1": |
           ${ users[0] }
       - "date_signed__1": ${ today() }
-      - "in_service": ${ any([party.military_status == "yes" for party in users.union(other_parties + additional_parties)]) }
-      - "serving_parties": ${ comma_and_list([party.name_full() for party in users.union(other_parties + additional_parties) if party.military_status == "yes"]) }
-      - "has_not_serving_parties": ${ any([party.military_status == "no" for party in users.union(other_parties + additional_parties)]) }
-      - "not_serving_parties": ${ comma_and_list( [party.name_full() for party in users.union(other_parties + additional_parties) if party.military_status == "no"] ) }
-      - "has_concluded_service_parties": ${ any([party.military_status == "past" for party in users.union(other_parties + additional_parties)]) }
+      - "in_service": ${ any([party.military_status == "yes" for party in users.union(other_parties)]) }
+      - "serving_parties": ${ comma_and_list([party.name_full() for party in users.union(other_parties) if party.military_status == "yes"]) }
+      - "has_not_serving_parties": ${ any([party.military_status == "no" for party in users.union(other_parties)]) }
+      - "not_serving_parties": ${ comma_and_list( [party.name_full() for party in users.union(other_parties) if party.military_status == "no"] ) }
+      - "has_concluded_service_parties": ${ any([party.military_status == "past" for party in users.union(other_parties)]) }
       - "concluded_service_parties_date": |
-          ${ comma_and_list([f"{party.name_full()}: {party.service_ended_date}" for party in users.union(other_parties + additional_parties) if party.military_status == "past"]) }
-      - "has_unsure_serving_parties": ${ any([party.military_status == "unknown" for party in users.union(other_parties + additional_parties)]) }
-      - "unsure_serving_parties": ${ comma_and_list([party.name_full() for party in users.union(other_parties + additional_parties) if party.military_status == "unknown"]) }
+          ${ comma_and_list([f"{party.name_full()}: {party.service_ended_date}" for party in users.union(other_parties) if party.military_status == "past"]) }
+      - "has_unsure_serving_parties": ${ any([party.military_status == "unknown" for party in users.union(other_parties)]) }
+      - "unsure_serving_parties": ${ comma_and_list([party.name_full() for party in users.union(other_parties) if party.military_status == "unknown"]) }
       - "has_used_scra_site": ${ has_used_scra_site }
       - "used_scra_site_facts": |
           % if has_used_scra_site:
