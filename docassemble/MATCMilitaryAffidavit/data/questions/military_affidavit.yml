@@ -622,6 +622,8 @@ content: |
 sets: 
   - in_service
   - unable_service
+  - not_service
+  - past_service_checkbox
 code: |
 
   # split them out by status
@@ -632,10 +634,10 @@ code: |
 
   # now expose both the raw lists (joined as comma‐strings) and booleans
   from docassemble.base.util import comma_and_list
-  serving_parties        = comma_and_list(serving_list)
-  past_service         = comma_and_list(past_list)
-  unsure_serving_parties = comma_and_list(unsure_list)
-  not_service            = comma_and_list(no_list)
+  serving_parties_text        = comma_and_list(serving_list)
+  past_service_text           = comma_and_list(past_list)
+  unsure_serving_parties_text = comma_and_list(unsure_list)
+  not_serving_parties_text    = comma_and_list(no_list)
 
   in_service     = bool(serving_list)
   not_service    = bool(no_list)
@@ -1222,15 +1224,15 @@ attachment:
       - "users1_name_full__1": |
           ${ users[0] }
       - "date_signed__1": ${ today() }
-      - "in_service": ${ any([party.military_status == "yes" for party in users.union(other_parties)]) }
-      - "serving_parties": ${ comma_and_list([party.name_full() for party in users.union(other_parties) if party.military_status == "yes"]) }
-      - "has_not_serving_parties": ${ any([party.military_status == "no" for party in users.union(other_parties)]) }
-      - "not_serving_parties": ${ comma_and_list( [party.name_full() for party in users.union(other_parties) if party.military_status == "no"] ) }
-      - "has_concluded_service_parties": ${ any([party.military_status == "past" for party in users.union(other_parties)]) }
+      - "has_serving_parties": ${ "Yes" if in_service else "Off" }
+      - "serving_parties": ${ serving_parties_text }
+      - "has_not_serving_parties": ${ "Yes" if not_service else "Off" }
+      - "not_serving_parties": ${ not_serving_parties_text }
+      - "has_concluded_service_parties": ${ "Yes" if past_service_checkbox else "Off" }
       - "concluded_service_parties_date": |
-          ${ comma_and_list([f"{party.name_full()}: {party.service_ended_date}" for party in users.union(other_parties) if party.military_status == "past"]) }
-      - "has_unsure_serving_parties": ${ any([party.military_status == "unknown" for party in users.union(other_parties)]) }
-      - "unsure_serving_parties": ${ comma_and_list([party.name_full() for party in users.union(other_parties) if party.military_status == "unknown"]) }
+          ${ comma_and_list([f"{party.name_full()}: {party.service_ended_date}" for party in other_parties if party.military_status == "past"]) }
+      - "has_unsure_serving_parties": ${ "Yes" if unable_service else "Off" }
+      - "unsure_serving_parties": ${ unsure_serving_parties_text }
       - "has_used_scra_site": ${ has_used_scra_site }
       - "used_scra_site_facts": |
           % if has_used_scra_site:
