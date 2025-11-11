@@ -549,7 +549,7 @@ question: Because you used the SCRA Webstite...
 fields:
   - Attach a copy of the search results if you have them: military_affidavit_proof_attachment.file
     datatype: file
-    required: False
+    required: True
     file css class: None
     accept: |
       ".pdf, .png, application/pdf, image/*"
@@ -803,21 +803,19 @@ attachment:
       - "users1_name_full__1": |
           ${ users[0] }
       - "date_signed__1": ${ today() }
-      - "has_serving_parties": ${ "Yes" if in_service else "Off" }
+      - "has_serving_parties": ${ True if in_service else False }
       - "serving_parties": ${ serving_parties_text }
-      - "has_not_serving_parties": ${ "Yes" if not_service else "Off" }
+      - "has_not_serving_parties": ${ True if not_service else False }
       - "not_serving_parties": ${ not_serving_parties_text }
-      - "has_concluded_service_parties": ${ "Yes" if past_service_checkbox else "Off" }
+      - "has_concluded_service_parties": ${ True if past_service_checkbox else False }
       - "concluded_service_parties_date": |
           ${ comma_and_list([f"{party.name_full()}: {party.service_ended_date}" for party in other_parties if party.military_status == "past"]) }
-      - "has_unsure_serving_parties": ${ "Yes" if unable_service else "Off" }
+      - "has_unsure_serving_parties": ${ True if unable_service else False }
       - "unsure_serving_parties": ${ unsure_serving_parties_text }
-      - "has_used_scra_site": ${ has_used_scra_site }
-      - "used_scra_site_facts": |
-          % if has_used_scra_site:
-          ${ used_scra_site_facts }
-          % endif
-      - "has_not_used_scra_site": ${not has_used_scra_site}
+      - "has_used_scra_site": ${ True if has_used_scra_site else False }
+      - "has_used_scra_site_facts": ${ True if used_scra_site_facts else False }
+      - "has_used_scra_facts": ${ True if has_used_scra_site else False }
+      - "has_not_used_scra_site": ${ False if has_used_scra_site else True }
       - "not_used_scra_site_facts": |
           % if not has_used_scra_site:
           ${not_used_scra_site_facts }
