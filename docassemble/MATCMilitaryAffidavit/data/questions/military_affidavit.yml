@@ -102,7 +102,7 @@ data:
 comment: |
   This block includes the logic for standalone interviews.
   Delete mandatory: True to include in another interview
-mandatory: True
+
 code: |
   # military_affidavit_intro
   nav.set_section("review_military_affidavit")
@@ -122,7 +122,7 @@ code: |
 comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_military_affidavit
-mandatory: True
+#mandatory: True
 code: |
   al_intro_screen
   military_affidavit_intro
@@ -169,6 +169,7 @@ content: |
 
 ---
 id: Military_Affidavit
+variable name: mill_aff
 continue button field: military_affidavit_intro
 question: |
   Military Affidavit
@@ -753,6 +754,9 @@ code: |
   # This is available to customize in other forms with more complex case name scenarios
   # Leave it undefined to use the default case name of petitioner v respondent or In the interests of respondent
   military_affidavit_case_name = ""
+---
+code: |
+ mill_aff_complete = True 
 ---
 attachment:
   name: Next steps & filing instructions
