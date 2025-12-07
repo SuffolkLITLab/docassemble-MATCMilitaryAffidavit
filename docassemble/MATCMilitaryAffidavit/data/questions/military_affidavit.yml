@@ -145,8 +145,8 @@ code: |
   #review_military_status
   in_service
   has_used_scra_site
-  if has_used_scra_site: used_scra_site_facts
-  else: not_used_scra_site_facts
+  if has_used_scra_site: scra_site_facts_additional_facts
+  else: not_used_scra_site_facts_required
   signature_date
   users[0].signature
   military_affidavit_case_name
@@ -545,7 +545,9 @@ fields:
 
 ---  
 id: Used SCRA
-question: Because you used the SCRA Webstite...
+question: Information required from SCRA website.
+subquestion: |
+  ${ collapse_template(scra_example) }
 fields:
   - Attach a copy of the search results if you have them: military_affidavit_proof_attachment.file
     datatype: file
@@ -553,14 +555,24 @@ fields:
     file css class: None
     accept: |
       ".pdf, .png, application/pdf, image/*"
-  - "Explain how you used the website in your search (optional if evidence attached)": used_scra_site_facts
+  - "Explain how you used the website in your search (optional if evidence attached)": scra_site_facts_additional_facts
     required: False
     input type: area
+---
+template: scra_example
+subject: |
+  An example of what SCRA search results look like.
+content: |
+  When you search the SCRA website, you will receive a certificate. Here's an example:
+  
+  [FILE Redacted_results_scra.png]
+  
+  You can save this certificate as a PDF or take a screenshot to upload here.
 ---
 id: not Used SCRA
 question: Because you did not use the SCRA Website...
 fields:
-  - Explain how you know: not_used_scra_site_facts
+  - Explain how you know: not_used_scra_site_facts_required
     input type: area
     required: False
     help: |
@@ -813,12 +825,12 @@ attachment:
       - "has_unsure_serving_parties": ${ True if unable_service else False }
       - "unsure_serving_parties": ${ unsure_serving_parties_text }
       - "has_used_scra_site": ${ True if has_used_scra_site else False }
-      - "has_used_scra_site_facts": ${ True if used_scra_site_facts else False }
-      - "has_used_scra_facts": ${ True if has_used_scra_site else False }
+      - "has_used_scra_site_attached_results": ${ True if military_affidavit_proof_attachment.file else False }
+      - "scra_site_facts_additional_facts": ${ scra_site_facts_additional_facts }
       - "has_not_used_scra_site": ${ False if has_used_scra_site else True }
-      - "not_used_scra_site_facts": |
+      - "not_used_scra_site_facts_required": |
           % if not has_used_scra_site:
-          ${not_used_scra_site_facts }
+          ${not_used_scra_site_facts_required }
           % endif
       - "users1_signature": |
           ${ users[0].signature_if_final(i) }
