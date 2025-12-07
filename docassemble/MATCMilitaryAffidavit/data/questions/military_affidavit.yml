@@ -45,6 +45,8 @@ code: |
 ---
 objects:
   - other_parties: ALPeopleList
+  - users: ALPeopleList.using(complete_attribute=['name.first'])
+  - attorneys: ALPeopleList.using(complete_attribute=['bbo_number', 'address.address', 'phone_number', 'email'])
   - serving_parties: ALPeopleList
   - unsure_serving_parties: ALPeopleList.using(auto_gather=False, gathered=True)
   - concluded_service_parties: ALPeopleList.using(auto_gather=False, gathered=True)
@@ -136,14 +138,32 @@ code: |
   
   nav.set_section("about_you")
   user_role
+  
+  #attorney path
+  
   if user_role == "attorney":
-   attorneys.there_are_any = True
-   bbo
-  is_there_helper
-  if is_there_helper:
-    helper_attorney
+    attorneys.there_are_any = True
+    attorneys.gather()
+    if attorneys.number_gathered() > 0:
+      attorneys[0].bbo_number
+      attorneys[0].phone_number
+      attorneys[0].email
+      attorneys[0].address.address
+  
+  #user filling out path
+  
+  else: 
+    attorneys.there_are_any = False
+    is_there_helper 
+    if is_there_helper:
+      helper_attorney
+      helper_bbo
+ 
   users.gather()
-  users[0].address.city
+  if user_role != "attorney":
+    users[0].address.address
+    users[0].phone_number
+    users[0].email
   
   nav.set_section("case_information")
   docket_number
@@ -223,12 +243,6 @@ fields:
     choices:
       - Representing myself: user
       - An attorney: attorney
-  - BBO number: bbo
-    maxlength: 10
-    datatype: number
-    show if:
-      variable: user_role
-      is: "attorney"
 ---
 sets:
   - other_parties[i].name.first
@@ -259,6 +273,62 @@ fields:
   - no label: other_parties.there_is_another
     datatype: yesnoradio
 ---
+id: attorney information
+sets:
+  - attorneys[i].name.first
+  - attorneys[i].name.last
+  - attorneys[i].name.middle
+  - attorneys[i].name.suffix
+  - attorneys[i].bbo_number
+  - attorneys[i].phone_number
+  - attorneys[i].email
+generic object: ALPeopleList
+question: |
+  % if i == 0:
+  What is your information?
+  % else:
+  Name of the first ${ noun_plural(attorneys.object_name(), 1) }
+  % endif
+fields:
+  - code: |
+      attorneys[i].name_fields()
+  - "BBO number": attorneys[i].bbo_number
+    maxlength: 6
+    required: True
+    under text: |
+      [Click here](https://www.massbbo.org/bbolookup.php) to look up your BBO number.
+  - Phone number: attorneys[i].phone_number
+    required: True
+  - Email: attorneys[i].email
+    datatype: email
+    required: True
+---
+sets:
+  - attorneys[i].address.address
+  - attorneys[i].address.city
+  - attorneys[i].address.zip
+  - attorneys[i].address.unit
+  - attorneys[i].address.state
+id: attorney address
+generic object: ALIndividual
+question: |
+  % if i == 0:
+  What is your address?
+  % else:
+  What is ${ attorneys[i].name }'s address?
+  % endif
+fields:
+  - Street address: attorneys[i].address.address
+    address autocomplete: True
+  - Unit: attorneys[i].address.unit
+    required: False
+  - City: attorneys[i].address.city
+  - State: attorneys[i].address.state
+    code: states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+  - Zip: attorneys[i].address.zip
+---
+---
 code: |
   other_parties.there_are_any = True
   if len(other_parties) == 0:
@@ -281,11 +351,7 @@ fields:
 ---
 id: user i's address
 question: |
-  % if i == 0 and al_person_answering == "user":
   What is your address?
-  % else:
-  What is ${ users[i] }'s address?
-  % endif
 fields:
   - label: |
       % if i > 0 and al_person_answering == "user":
@@ -361,6 +427,7 @@ question: |
 fields:
   - "Attorney's name": helper_attorney
   - "Attorney's BBO number (if known)": helper_bbo
+    required: False
 ---
 template: fee_waiver_docket_number_explanation_template
 subject: |
@@ -532,26 +599,6 @@ code: |
   unable_service = bool(unsure_list)
 
 ---
-#id: confirm serving party status
-#question: |
-#  Confirm the military status of each party
-#subquestion: |
-#  Here is what you told us about each party:
-#
-#  ${ all_party_status_review_table }
-
-#  ${ action_button_html(url_action('set_all_military_statuses'), #label="Edit military service status")}
-#continue button field: review_military_status
----
-#table: all_party_status_review_table
-#rows: other_parties
-#columns:
-#  - Name: |
-#      row_item.name_full()
-#   Find the first matching key in the military_status_labels list and show #the matching text - this is for translation
-#  - In active service?: |
-#      next((k for d in military_status_labels for k, v in d.items() if v == #row_item.military_status), "")
----
 id: your name
 sets:
     - users[0].name.first
@@ -566,12 +613,24 @@ question:  |
   % endif
 subquestion: |
   If this case is "in the interests of" someone else, enter their name here.
-
   For example, if this case is for a guardianship or conservatorship, enter
   the name of the person who needs the guardian or conservator.
 fields:
   - code: |
       users[0].name_fields()
+---
+id: user contact information
+sets:
+    - users[0].phone_number
+    - users[0].email
+question: |
+  What is your contact information?
+fields:
+  - Phone number: users[0].phone_number
+    required: False
+  - Email: users[0].email
+    datatype: email
+    required: False
 ---
 code: |
   serving_parties = DAList()
@@ -644,7 +703,7 @@ code: |
 
 ---
 id: military affidavit review screen
-# event: review_military_affidavit
+ #event: review_military_affidavit
 question: |
   Review your answers
 review:
@@ -735,10 +794,10 @@ review:
     button: |
       Date of signature:
       ${ signature_date }
-  - Edit: bbo
-    button: |
-      BBO number (if you are an attorney):
-      ${ bbo }
+  #- Edit: bbo
+  #  button: |
+  #    BBO number (if you are an attorney):
+  #    ${ bbo }
 ---
 #id: revisit exhibit_attachment
 #question: |
@@ -896,12 +955,38 @@ attachment:
       - "users1_signature": |
           ${ users[0].signature_if_final(i) }
       - "date_signed__2": ${ today() }
-      - "users1_name_full__2": ${users[0]}
-      - "users1_address_on_one_line": ${users[0].address.on_one_line()}
-      - "users1_phone": ${users[0].phone_numbers() }
-      - "user_bbo": ${bbo}
-      - "users1_email": ${users[0].email}
-
+      - "users1_name_full__2": |
+          % if attorneys.number_gathered() > 0:
+          ${ attorneys[0] }
+          % else:
+          ${ users[0] }
+          % endif
+      - "users1_address_on_one_line": |
+          % if attorneys.number_gathered() > 0:
+          ${ attorneys[0].address.on_one_line() }
+          % else:
+          ${ users[0].address.on_one_line() }
+          % endif
+      - "users1_phone": |
+          % if attorneys.number_gathered() > 0:
+          ${ attorneys[0].phone_numbers() }
+          % else:
+          ${ users[0].phone_numbers() }
+          % endif
+      - "user_bbo": |
+          % if attorneys.number_gathered() > 0:
+          ${ attorneys[0].bbo_number }
+          % elif is_there_helper:
+          ${ helper_bbo }
+          % else:
+    
+          % endif
+      - "users1_email": |
+          % if attorneys.number_gathered() > 0:
+          ${ attorneys[0].email }
+          % else:
+          ${ users[0].email }
+          % endif
 ---
 code: |
   military_affidavit_bundle.enabled = True
