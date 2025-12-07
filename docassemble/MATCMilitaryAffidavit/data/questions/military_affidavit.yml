@@ -545,7 +545,9 @@ fields:
 
 ---  
 id: Used SCRA
-question: Because you used the SCRA Webstite...
+question: Information required from SCRA website.
+subquestion: |
+  ${ collapse_template(scra_example) }
 fields:
   - Attach a copy of the search results if you have them: military_affidavit_proof_attachment.file
     datatype: file
@@ -556,6 +558,16 @@ fields:
   - "Explain how you used the website in your search (optional if evidence attached)": scra_site_facts_additional_facts
     required: False
     input type: area
+---
+template: scra_example
+subject: |
+  An example of what SCRA search results look like.
+content: |
+  When you search the SCRA website, you will receive a certificate. Here's an example:
+  
+  [FILE Redacted_results_scra.png]
+  
+  You can save this certificate as a PDF or take a screenshot to upload here.
 ---
 id: not Used SCRA
 question: Because you did not use the SCRA Website...
