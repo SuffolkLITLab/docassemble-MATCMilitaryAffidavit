@@ -2,46 +2,6 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALMassachusetts:al_massachusetts.yml
-  - docassemble.MassAccess:massaccess.yml
-  - military_affidavit.yml
-  - docassemble.MATCTheme:matc_theme.yml
----
-metadata:
-  title: |
-    Military Affidavit
-  short title: |
-    Military Affidavit
-  authors:
-    - Pratibha Bharti
-    - Quinten Steenhuis
-    - Conner McGarry
-    - Maeve Torrey
----
-code: |
- military_affidavit_proof_attachment.enabled=has_used_scra_site 
----
-code: |
-  interview_metadata['main_interview_key'] =  'military_affidavit'
----
-code: |
-  addresses_to_search = [users[0].address]
----
-code: |
-  # This controls the default country and list of states in address field questions
-  AL_DEFAULT_COUNTRY = "US"
----
-code: |
-  # This controls the default state in address field questions
-  AL_DEFAULT_STATE = "MA"
----
-code: |
-  github_repo_name =  'docassemble-MilitaryAffidavit'
----
-code: |
-  interview_short_title = "Tell the court whether any of the people in your case have served in the military"
----
-code: |
-  al_form_type = "existing_case" 
 ---
 objects:
   - other_parties: ALPeopleList
@@ -57,83 +17,15 @@ objects:
           has_addendum=False
         )
   - military_affidavit_next_steps: ALDocument.using(title="Next steps & filing instructions", filename="military_affidavit_next_steps", has_addendum=False, enabled=True)
-  - al_user_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment,military_affidavit_next_steps, military_affidavit_proof_attachment], filename="military_affidavit", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment, military_affidavit_proof_attachment], filename="military_affidavit", title="All forms to deliver to court", enabled=True)
   - military_affidavit_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment, military_affidavit_proof_attachment], filename="military_affidavit", title="Military Affidavit", enabled=True)
----
-sections:
-  - introduction: Getting started
-  - about_you: User Information
-  - case_information: Case information
-  - gather_parties: Gather parties
-  - military_status: Military status information
-  - supporting_documentation: Supporting your answers
-  - review_military_affidavit: Review your answers
----
-mandatory: True
-comment: |
-  Global interview metadata
-variable name: interview_metadata["military_affidavit"]
-data:
-  al_weaver_version: "1.8.0"
-  generated on: "2023-02-28"
-  title: >-
-    Military Affidavit
-  short title: >-
-    Military Affidavit
-  description: |-
-    Affidavit Declaring whether the party is a military servicemember
-  allowed courts: 
-    - "Boston Municipal Court"
-    - "District Court"
-    - "Housing Court"
-    - "Juvenile Court"
-    - "Land Court"
-    - "Probate and Family Court"
-    - "Superior Court"
-  categories:
-    - "ED-00-00-00-00"
-    - "MO-00-00-00-00"
-    - "HE-00-00-00-00"
-    - "IM-00-00-00-00"
-    - "BE-00-00-00-00"
-    - "FA-07-00-00-00"
-    - "HO-00-00-00-00"
-    - "BE-04-00-00-00"
-    - "ES-00-00-00-00"
-    - "RI-10-00-00-00"
-    - "FA-00-00-00-00"
-  typical role: "unknown"
-  generate download screen: True
----
-###################### Main order ######################
-comment: |
-  This block includes the logic for standalone interviews.
-  Delete mandatory: True to include in another interview
-mandatory: True
-code: |
-  # military_affidavit_intro
-  nav.set_section("review_military_affidavit")
-  interview_order_military_affidavit
-  signature_date
-  # Store anonymous data for analytics / statistics
-  store_variables_snapshot(
-      persistent=True,
-      data={
-          "zip": showifdef("users[0].address.zip"),
-          "reached_interview_end": True,
-      },
-  )
-  military_affidavit_download
 ---
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_military_affidavit
-mandatory: True
 code: |
   nav.set_section("introduction")
-  al_intro_screen
+  #al_intro_screen
   military_affidavit_intro
   
   nav.set_section("about_you")
@@ -988,24 +880,4 @@ attachment:
           ${ users[0].email }
           % endif
 ---
-code: |
-  military_affidavit_bundle.enabled = True
----
-id: download military_affidavit
-event: military_affidavit_download
-question: |
-  All done
-subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
-  
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
 
-  ${ action_button_html(url_action('review_military_affidavit'), label='Edit answers', color='info') }
-  
-  
-  ${ al_user_bundle.download_list_html() }
-  
-
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
-
-progress: 100
