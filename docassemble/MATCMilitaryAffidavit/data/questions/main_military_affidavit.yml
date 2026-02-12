@@ -89,7 +89,6 @@ code: |
   
   nav.set_section("about_you")
   user_role
-  user_ask_role
   
   #attorney path
   
@@ -110,7 +109,9 @@ code: |
     if is_there_helper:
       helper_attorney
       helper_bbo
- 
+  
+  user_ask_role
+  
   users.gather()
   if user_role != "attorney":
     users[0].address.address
@@ -143,7 +144,7 @@ code: |
     set_months_to_calc
     rent_worksheet
     calculate_rent_totals
-    uniform_seen
+   
   
   nav.set_section("supporting_documentation")
   has_used_scra_site

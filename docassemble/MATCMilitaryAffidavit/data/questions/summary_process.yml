@@ -200,33 +200,6 @@ code: |
   
   calculate_rent_totals = True
 ---
-id: r10_facts_supporting_knowledge
-question: |
-  Do you have any facts that show the defendant's military service status?
-subquestion: |
-  Please check all that apply:
-fields:
-  - "I saw the defendant in a military uniform.": uniform_seen
-    datatype: yesno
-  - "The defendant works in civilian employment.": civilian_seen
-    datatype: yesno
-  - "The defendant has acknowledged their military status.": defendant_acknowledge
-    datatype: yesno
-  - "I have other facts or reasons that show the defendant(s) military status.": other_facts
-    datatype: yesno
-  - "Please describe the other facts here:": other_facts_text
-    maxlength: 120
-    show if: other_facts
----
-code: |
-  # Default values for R10 facts if not asked (when summary_process_confirmed is False)
-  if not summary_process_confirmed:
-    uniform_seen = False
-    civilian_seen = False
-    defendant_acknowledge = False
-    other_facts = False
-    other_facts_text = ""
----
 code: |
   # Unified BBO number variable
   if user_role == "attorney" and attorneys.number_gathered() > 0:
@@ -276,11 +249,6 @@ attachment:
       - "serving_parties": ${ serving_parties_text }
       - "unable_service": ${ unable_service }
       - "unsure_serving_parties": ${ unsure_serving_parties_text }
-      - "uniform_seen": ${ uniform_seen }
-      - "civilian_seen": ${ civilian_seen }
-      - "defendant_acknowledge": ${ defendant_acknowledge }
-      - "other_facts": ${ other_facts }
-      - "other_facts_text": ${ other_facts_text }
       - "unpaid_rent": ${ months_unpaid_total }
       - "unpaid_rent_date": ${ first_month_year }
       - "premise_occupy": ${ premise_occupy }

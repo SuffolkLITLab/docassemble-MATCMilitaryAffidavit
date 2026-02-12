@@ -517,12 +517,17 @@ sets:
     - users[0].email
 question: |
   What is your contact information?
+subquestion: |
+  Please provide at least one way we can contact you.
 fields:
   - Phone number: users[0].phone_number
     required: False
   - Email: users[0].email
     datatype: email
     required: False
+validation code: |
+  if not users[0].phone_number and not users[0].email:
+    validation_error("Please provide at least one contact method (phone number or email).")
 ---
 code: |
   serving_parties = DAList()
