@@ -69,6 +69,25 @@ code: |
   parties_vacated = len(vacated_parties) > 0
   premise_occupy = any(getattr(party, "vacated", None) is False for party in other_parties)
 ---
+id: use_rent_worksheet
+question: |
+  How would you like to calculate the unpaid rent?
+fields:
+  - no label: use_rent_worksheet
+    datatype: radio
+    choices:
+      - I want to enter the total amounts directly: False
+      - I want to fill out a detailed worksheet month by month: True
+---
+id: simple_rent_totals
+question: |
+  Enter the rent amounts
+fields:
+  - "Total rent paid after filing the lawsuit": simple_rent_paid
+    datatype: currency
+  - "Total rent owed after filing the lawsuit": simple_rent_owed
+    datatype: currency
+---
 id: monthly_rent_amount
 question: |
   What was the monthly rent amount?
@@ -141,6 +160,25 @@ code: |
           
   set_months_to_calc = True
 ---
+id: simple_unpaid_rent_start_date
+question: |
+  When did the unpaid rent period begin?
+subquestion: |
+  Enter the first month and year that rent went unpaid after you filed the lawsuit.
+fields:
+  - "Month": simple_unpaid_start_month
+    datatype: dropdown
+    code: months_choices
+  - "Year": simple_unpaid_start_year
+    datatype: dropdown
+    code: years_choices
+---
+code: |
+  from datetime import date
+  simple_start = date(int(simple_unpaid_start_year), int(simple_unpaid_start_month), 1)
+  first_month_year = simple_start.strftime("%B %Y")
+  simple_date_set = True
+---
 id: rent_worksheet
 question: |
   For each month listed below, please:
@@ -173,30 +211,41 @@ continue button field: rent_worksheet
 ---
 id: calculate_monthly_unpaid_and_paid
 code: |
-  # Initialize running totals
-  months_unpaid_total = 0
-  months_paid_total = 0
+  if use_rent_worksheet:
+    # Initialize running totals
+    months_unpaid_total = 0
+    months_paid_total = 0
 
-  for i, (key, label) in enumerate(months_to_calc):
-      # Look up amount paid this month (defaults to 0)
-      paid = value(f"rent_paid_{key}") if defined(f"rent_paid_{key}") else 0
-      # Calculate what's still owed
-      unpaid = monthly_rent - paid
+    for i, (key, label) in enumerate(months_to_calc):
+        # Look up amount paid this month (defaults to 0)
+        paid = value(f"rent_paid_{key}") if defined(f"rent_paid_{key}") else 0
+        # Calculate what's still owed
+        unpaid = monthly_rent - paid
 
-      # Dynamically set month1, month1_paid, month1_unpaid, month2, month2_paid, ...
-      define(f"month{i+1}", label)
-      define(f"month{i+1}_paid", paid)
-      define(f"month{i+1}_unpaid", unpaid)
+        # Dynamically set month1, month1_paid, month1_unpaid, month2, month2_paid, ...
+        define(f"month{i+1}", label)
+        define(f"month{i+1}_paid", paid)
+        define(f"month{i+1}_unpaid", unpaid)
 
-      # Add to grand totals
-      months_paid_total += paid
-      months_unpaid_total += unpaid
-  
-  # Fill remaining months (up to 24) with empty values
-  for j in range(len(months_to_calc) + 1, 25):
-      define(f"month{j}", "")
-      define(f"month{j}_paid", 0)
-      define(f"month{j}_unpaid", 0)
+        # Add to grand totals
+        months_paid_total += paid
+        months_unpaid_total += unpaid
+    
+    # Fill remaining months (up to 24) with empty values
+    for j in range(len(months_to_calc) + 1, 25):
+        define(f"month{j}", "")
+        define(f"month{j}_paid", 0)
+        define(f"month{j}_unpaid", 0)
+  else:
+    # Simple totals path
+    months_paid_total = simple_rent_paid
+    months_unpaid_total = simple_rent_owed
+    
+    # Set all month fields to empty
+    for j in range(1, 25):
+        define(f"month{j}", "")
+        define(f"month{j}_paid", 0)
+        define(f"month{j}_unpaid", 0)
   
   calculate_rent_totals = True
 ---
@@ -210,11 +259,18 @@ code: |
     bbo = ""
 ---
 code: |
+  vacated_parties = [party.name_full() for party in other_parties if getattr(party, "vacated", None) is True]
+  parties_vacated = len(vacated_parties) > 0
+  premise_occupy = any(getattr(party, "vacated", None) is False for party in other_parties)
+  vacated_status_calculated = True
+---
+code: |
   # Enable R10 attachment only if this is a summary process case
   military_affidavit_r10_attachment.enabled = summary_process_confirmed
 ---
 need:
   - calculate_rent_totals
+  - vacated_status_calculated
   - bbo
 attachment:
   name: Military Affidavit Rule 10
@@ -250,7 +306,7 @@ attachment:
       - "unable_service": ${ unable_service }
       - "unsure_serving_parties": ${ unsure_serving_parties_text }
       - "unpaid_rent": ${ months_unpaid_total }
-      - "unpaid_rent_date": ${ first_month_year }
+      - "unpaid_rent_date": ${ first_month_year if defined('first_month_year') else "" }
       - "premise_occupy": ${ premise_occupy }
       - "vacated_date": ${ vacated_date.format() if parties_vacated else "" }
       - "parties_vacated": ${ parties_vacated }
@@ -308,4 +364,5 @@ attachment:
       - "month24": ${ month24 }
       - "month24_unpaid": ${ month24_unpaid }
       - "months_unpaid_total": ${ months_unpaid_total }
+      - "rent_paid": ${ months_paid_total }
       - "months_paid_total": ${ months_paid_total }

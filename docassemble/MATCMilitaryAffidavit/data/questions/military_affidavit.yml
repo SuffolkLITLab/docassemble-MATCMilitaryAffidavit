@@ -421,21 +421,47 @@ id: set all concluded service parties dates
 question: |
   When did the military service end?
 subquestion: |
-  Write the best date that you know for each party. Include a year.  Example: May 2024.
+  For each person whose military service has ended, select the date their service concluded.
 fields:
   - code: |
-      [
-        {
-          "field": party.attr_name("service_ended_date"),
-          "label": party.name_full(),
-          "under text": "Date service ended"
-        }
-        for party
-        in
-        sorted(other_parties)          
+      sum([
+        [
+          {"note": f"**{party.name_full()}**", "item grid": {"width": 12, "breakpoint": "sm"}},
+          {
+            "field": party.attr_name("service_ended_month"),
+            "label": "Month",
+            "datatype": "dropdown",
+            "code": "months_choices",
+            "item grid": {"width": 4, "breakpoint": "sm"}
+          },
+          {
+            "field": party.attr_name("service_ended_day"),
+            "label": "Day",
+            "datatype": "dropdown",
+            "choices": [str(d) for d in range(1, 32)],
+            "item grid": {"width": 4, "breakpoint": "sm"}
+          },
+          {
+            "field": party.attr_name("service_ended_year"),
+            "label": "Year",
+            "datatype": "dropdown",
+            "code": "years_choices",
+            "item grid": {"width": 4, "breakpoint": "sm"}
+          }
+        ]
+        for party in sorted(other_parties)
         if party.military_status == "past"
-      ]
+      ], [])
 continue button field: set_concluded_service_dates
+---
+code: |
+  # Format the service ended date for display in the PDF
+  import calendar
+  for party in other_parties:
+    if party.military_status == "past" and hasattr(party, 'service_ended_month'):
+      month_name = calendar.month_name[int(party.service_ended_month)]
+      party.service_ended_date = f"{month_name} {party.service_ended_day}, {party.service_ended_year}"
+  service_dates_formatted = True
 ---
 id: unsure military service
 question: |
@@ -838,7 +864,9 @@ attachment:
       - "not_serving_parties": ${ not_serving_parties_text }
       - "has_concluded_service_parties": ${ True if past_service_checkbox else False }
       - "concluded_service_parties_date": |
-          ${ comma_and_list([f"{party.name_full()}: {party.service_ended_date}" for party in other_parties if party.military_status == "past"]) }
+          % if past_service_checkbox:
+          ${ comma_and_list([f"{party.name_full()}: {party.service_ended_date}" for party in other_parties if party.military_status == "past" and hasattr(party, 'service_ended_date')]) }
+          % endif
       - "has_unsure_serving_parties": ${ True if unable_service else False }
       - "unsure_serving_parties": ${ unsure_serving_parties_text }
       - "has_used_scra_site": ${ True if has_used_scra_site else False }

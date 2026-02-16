@@ -131,19 +131,29 @@ code: |
   set_all_military_statuses
   if any([party.military_status == "past" for party in other_parties]):
     set_concluded_service_dates
+    service_dates_formatted
   if any([party.military_status == "unknown" for party in other_parties]):
     bond_agreement_i_understand
   in_service
+
   
-    # NEW SECTION: Summary Process questions
+  # NEW SECTION: Summary Process questions
   nav.set_section("summary_process")
   if summary_process_confirmed:
     set_vacated_status
-    monthly_rent
-    set_unpaid_rent_month_year
-    set_months_to_calc
-    rent_worksheet
+    use_rent_worksheet
+    if use_rent_worksheet:
+      monthly_rent
+      set_unpaid_rent_month_year
+      set_months_to_calc
+      rent_worksheet
+    else:
+      simple_rent_paid
+      simple_rent_owed
+      simple_unpaid_start_month
+      simple_date_set
     calculate_rent_totals
+
    
   
   nav.set_section("supporting_documentation")
