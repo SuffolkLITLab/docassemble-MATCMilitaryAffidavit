@@ -1,0 +1,178 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALMassachusetts:al_massachusetts.yml
+  - docassemble.MassAccess:massaccess.yml
+  - docassemble.MATCTheme:matc_theme.yml
+  - military_affidavit.yml
+  - summary_process.yml 
+---
+metadata:
+  title: |
+    Military Affidavit
+  short title: |
+    Military Affidavit
+  authors:
+    - Pratibha Bharti
+    - Quinten Steenhuis
+    - Conner McGarry
+    - Maeve Torrey
+---
+code: |
+ military_affidavit_proof_attachment.enabled=has_used_scra_site 
+---
+code: |
+  interview_metadata['main_interview_key'] =  'military_affidavit'
+---
+code: |
+  addresses_to_search = [users[0].address]
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MA"
+---
+code: |
+  github_repo_name =  'docassemble-MilitaryAffidavit'
+---
+code: |
+  interview_short_title = "Tell the court whether any of the people in your case have served in the military"
+---
+code: |
+  al_form_type = "existing_case" 
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment,military_affidavit_next_steps, military_affidavit_proof_attachment, military_affidavit_r10_attachment], filename="military_affidavit", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[military_affidavit_attachment, military_affidavit_proof_attachment, military_affidavit_r10_attachment], filename="military_affidavit", title="All forms to deliver to court", enabled=True)
+---
+sections:
+  - introduction: Getting started
+  - about_you: User Information
+  - case_information: Case information
+  - gather_parties: Gather parties
+  - military_status: Military status information
+  - summary_process: Summary Process (Eviction) Information
+  - supporting_documentation: Supporting your answers
+  - review_military_affidavit: Review your answers
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  # military_affidavit_intro
+  nav.set_section("review_military_affidavit")
+  interview_order_military_affidavit
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  military_affidavit_download
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_military_affidavit
+code: |
+  nav.set_section("introduction")
+  al_intro_screen
+  military_affidavit_intro
+  
+  nav.set_section("about_you")
+  user_role
+  
+  #attorney path
+  
+  if user_role == "attorney":
+    attorneys.there_are_any = True
+    attorneys.gather()
+    if attorneys.number_gathered() > 0:
+      attorneys[0].bbo_number
+      attorneys[0].phone_number
+      attorneys[0].email
+      attorneys[0].address.address
+  
+  #user filling out path
+  
+  else: 
+    attorneys.there_are_any = False
+    is_there_helper 
+    if is_there_helper:
+      helper_attorney
+      helper_bbo
+  
+  user_ask_role
+  
+  users.gather()
+  if user_role != "attorney":
+    users[0].address.address
+    users[0].phone_number
+    users[0].email
+  
+  nav.set_section("case_information")
+  summary_process_confirmed
+  docket_number
+  trial_court
+  summary_process_confirmed # Auto-detect from docket number
+
+  nav.set_section("gather_parties")
+  other_parties.gather()
+  
+  nav.set_section("military_status")
+  set_all_military_statuses
+  if any([party.military_status == "past" for party in other_parties]):
+    set_concluded_service_dates
+  if any([party.military_status == "unknown" for party in other_parties]):
+    bond_agreement_i_understand
+  in_service
+  
+    # NEW SECTION: Summary Process questions
+  nav.set_section("summary_process")
+  if summary_process_confirmed:
+    set_vacated_status
+    monthly_rent
+    set_unpaid_rent_month_year
+    set_months_to_calc
+    rent_worksheet
+    calculate_rent_totals
+   
+  
+  nav.set_section("supporting_documentation")
+  has_used_scra_site
+  if has_used_scra_site: scra_site_facts_additional_facts
+  else: not_used_scra_site_facts_required
+  
+  nav.set_section("review_military_affidavit")
+  signature_date
+  users[0].signature
+  military_affidavit_case_name
+  
+  interview_order_military_affidavit = True
+---
+id: download military_affidavit
+event: military_affidavit_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_military_affidavit'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100

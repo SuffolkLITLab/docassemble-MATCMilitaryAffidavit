@@ -1,0 +1,311 @@
+---
+comment: |
+  Summary Process (Eviction) specific questions and logic
+  for Military Affidavit Rule 10
+---
+objects:
+  - military_affidavit_r10_attachment: ALDocument.using(
+      title="Military Affidavit Rule 10", 
+      filename="military_affidavit_r10", 
+      has_addendum=False)
+---
+template: sumpro_ex
+subject: |
+  What is a Summary Process Case?
+content: |
+  In Massachusetts, an eviction case is legally called a "Summary Process" case. 
+  These are typically filed in Housing Court when a landlord is seeking to remove 
+  a tenant from a rental property. 
+  
+  Common causes of summary process cases include: 
+  
+  - Tenant not paying rent
+  - Tenant breaking the lease
+  - Tenant not leaving after the lease ends
+  - Tenant not leaving after proper notice
+  
+  If your goal is to remove someone from a rental unit, it is likely a summary process case.
+---
+id: confirm_summary_process
+question: |
+  Is this a Summary Process (eviction) case?
+subquestion: |
+  ${collapse_template(sumpro_ex)}  
+fields:
+  - "Is this a Summary Process case?": summary_process_confirmed
+    datatype: yesnoradio
+---
+id: set_vacated_status
+question: |
+  Tell us whether each defendant has vacated the premises
+subquestion: |
+  "Vacated" means the tenant has permanently left the property and no longer lives there.
+fields:
+  - code: |
+      [
+        {
+          "field": party.attr_name("vacated"),
+          "label": party.name_full(),
+          "item grid": {
+            "width": 6,
+            "breakpoint": "sm"
+          },
+          "datatype": "radio",
+          "choices": [
+            {"label": "Vacated", "value": True},
+            {"label": "Still living there", "value": False}
+          ],
+        }
+        for party in sorted(other_parties)
+      ]
+  - Select the date the defendant vacated the property: vacated_date
+    datatype: ThreePartsDate
+    js show if: |
+      val("other_parties[0].vacated") || val("other_parties[1].vacated") || val("other_parties[2].vacated") || val("other_parties[3].vacated") || val("other_parties[4].vacated") || val("other_parties[5].vacated")
+continue button field: set_vacated_status
+---
+code: |
+  vacated_parties = [party.name_full() for party in other_parties if getattr(party, "vacated", None) is True]
+  parties_vacated = len(vacated_parties) > 0
+  premise_occupy = any(getattr(party, "vacated", None) is False for party in other_parties)
+---
+id: monthly_rent_amount
+question: |
+  What was the monthly rent amount?
+subquestion: |
+  Please enter the dollar amount that was due each month for rent.  
+  You will have a chance to adjust this amount for individual months later if needed.
+fields:
+  - "Monthly rent amount": monthly_rent
+    datatype: currency
+---
+id: rent_unpaid_month_year_prep
+code: |
+  import calendar
+  from datetime import date
+  
+  months_choices = [
+    {"label": calendar.month_name[m], "value": m}
+    for m in range(1, 13)
+  ]
+  
+  this_year = date.today().year
+  years_choices = [
+    {"label": str(y), "value": y}
+    for y in range(this_year - 5, this_year + 1)
+  ]
+---
+id: rent_unpaid_period
+question: |
+  After filing the lawsuit, when did the unpaid rent period begin and end?
+subquestion: |
+  Please enter the first and last month and year that rent went unpaid after you filed the lawsuit.
+fields:
+  - "First month": unpaid_start_month
+    datatype: dropdown
+    code: months_choices  # <-- Changed from 'choices:' to 'code:'
+  - "First year": unpaid_start_year
+    datatype: dropdown
+    code: years_choices   # <-- Changed from 'choices:' to 'code:'
+  - "Last month": unpaid_end_month
+    datatype: dropdown
+    code: months_choices  # <-- Changed from 'choices:' to 'code:'
+  - "Last year": unpaid_end_year
+    datatype: dropdown
+    code: years_choices   # <-- Changed from 'choices:' to 'code:'
+continue button field: set_unpaid_rent_month_year
+---
+code: |
+  from datetime import date
+  
+  # Cast the dropdown strings to ints (day=1)
+  start = date(int(unpaid_start_year), int(unpaid_start_month), 1)
+  end   = date(int(unpaid_end_year),   int(unpaid_end_month),   1)
+  
+  # Store the first month and year combo as a label
+  first_month_year = start.strftime("%B %Y")
+  
+  months_to_calc = []
+  current = start
+  
+  while current <= end:
+      key = current.strftime("%Y_%m")
+      label = current.strftime("%B %Y")
+      months_to_calc.append((key, label))
+      
+      # Advance one month
+      if current.month == 12:
+          current = current.replace(year=current.year+1, month=1)
+      else:
+          current = current.replace(month=current.month+1)
+          
+  set_months_to_calc = True
+---
+id: rent_worksheet
+question: |
+  For each month listed below, please:
+subquestion: |
+  1. Verify the month name heading.  
+  2. Review the prefilled Rent Due amount.  
+  3. Enter the actual amount Paid in the Rent Paid box.
+fields:
+  - code: |
+      sum([
+        [
+          {"note": f"**{label}**", "item grid": {"width": 12, "breakpoint": "sm"}},
+          {
+            "field": f"rent_due_{key}",
+            "label": "Rent due",
+            "datatype": "currency",
+            "default": monthly_rent,
+            "item grid": {"width": 6, "breakpoint": "sm"}
+          },
+          {
+            "field": f"rent_paid_{key}",
+            "label": "Rent paid",
+            "datatype": "currency",
+            "item grid": {"width": 6, "breakpoint": "sm"}
+          }
+        ]
+        for key, label in months_to_calc
+      ], [])
+continue button field: rent_worksheet
+---
+id: calculate_monthly_unpaid_and_paid
+code: |
+  # Initialize running totals
+  months_unpaid_total = 0
+  months_paid_total = 0
+
+  for i, (key, label) in enumerate(months_to_calc):
+      # Look up amount paid this month (defaults to 0)
+      paid = value(f"rent_paid_{key}") if defined(f"rent_paid_{key}") else 0
+      # Calculate what's still owed
+      unpaid = monthly_rent - paid
+
+      # Dynamically set month1, month1_paid, month1_unpaid, month2, month2_paid, ...
+      define(f"month{i+1}", label)
+      define(f"month{i+1}_paid", paid)
+      define(f"month{i+1}_unpaid", unpaid)
+
+      # Add to grand totals
+      months_paid_total += paid
+      months_unpaid_total += unpaid
+  
+  # Fill remaining months (up to 24) with empty values
+  for j in range(len(months_to_calc) + 1, 25):
+      define(f"month{j}", "")
+      define(f"month{j}_paid", 0)
+      define(f"month{j}_unpaid", 0)
+  
+  calculate_rent_totals = True
+---
+code: |
+  # Unified BBO number variable
+  if user_role == "attorney" and attorneys.number_gathered() > 0:
+    bbo = attorneys[0].bbo_number
+  elif defined('helper_bbo') and helper_bbo:
+    bbo = helper_bbo
+  else:
+    bbo = ""
+---
+code: |
+  # Enable R10 attachment only if this is a summary process case
+  military_affidavit_r10_attachment.enabled = summary_process_confirmed
+---
+need:
+  - calculate_rent_totals
+  - bbo
+attachment:
+  name: Military Affidavit Rule 10
+  filename: military_affidavit_r10
+  variable name: military_affidavit_r10_attachment[i]
+  skip undefined: True
+  pdf template file: military_affidavitr_10.pdf
+  fields:
+      - "docket_number__1": ${ docket_number }
+      - "docket_number__2": ${ docket_number }
+      - "trial_court_division__1": ${ trial_court.division }
+      - "trial_court_division__2": ${ trial_court.division }
+      - "petitioners": |
+          % if user_ask_role == "plaintiff":
+            % if len(other_parties):
+          ${ users }
+            % else:
+          In the interests of ${ users }
+            % endif
+          % else:
+          ${ other_parties }
+          % endif
+      - "respondents": |
+          % if user_ask_role == "defendant":
+          ${ users }
+          % else:
+          ${ other_parties.short_list(limit=2) }
+          % endif
+      - "users1_name_full__1": ${ users[0] }
+      - "not_service": ${ not_service }
+      - "in_service": ${ in_service }
+      - "serving_parties": ${ serving_parties_text }
+      - "unable_service": ${ unable_service }
+      - "unsure_serving_parties": ${ unsure_serving_parties_text }
+      - "unpaid_rent": ${ months_unpaid_total }
+      - "unpaid_rent_date": ${ first_month_year }
+      - "premise_occupy": ${ premise_occupy }
+      - "vacated_date": ${ vacated_date.format() if parties_vacated else "" }
+      - "parties_vacated": ${ parties_vacated }
+      - "vacated_parties": ${ comma_and_list(vacated_parties) if parties_vacated else "" }
+      - "bbo_number": ${ bbo if user_role == "attorney" else "" }
+      - "users1_full_name__2": ${ users[0].name.full() }
+      - "signature_date": ${ signature_date }
+      - "users1_signature": ${ users[0].signature_if_final(i) }
+      - "month1_unpaid": ${ month1_unpaid }
+      - "month1": ${ month1 }
+      - "month2_unpaid": ${ month2_unpaid }
+      - "month2": ${ month2 }
+      - "month3_unpaid": ${ month3_unpaid }
+      - "month3": ${ month3 }
+      - "month4_unpaid": ${ month4_unpaid }
+      - "month4": ${ month4 }
+      - "month5_unpaid": ${ month5_unpaid }
+      - "month5": ${ month5 }
+      - "month6_unpaid": ${ month6_unpaid }
+      - "month6": ${ month6 }
+      - "month7": ${ month7 }
+      - "month7_unpaid": ${ month7_unpaid }
+      - "month8": ${ month8 }
+      - "month8_unpaid": ${ month8_unpaid }
+      - "month9": ${ month9 }
+      - "month9_unpaid": ${ month9_unpaid }
+      - "month10": ${ month10 }
+      - "month10_unpaid": ${ month10_unpaid }
+      - "month11": ${ month11 }
+      - "month11_unpaid": ${ month11_unpaid }
+      - "month12_unpaid": ${ month12_unpaid }
+      - "month12": ${ month12 }
+      - "month13": ${ month13 }
+      - "month13_unpaid": ${ month13_unpaid }
+      - "month14": ${ month14 }
+      - "month14_unpaid": ${ month14_unpaid }
+      - "month15_unpaid": ${ month15_unpaid }
+      - "month15": ${ month15 }
+      - "month16_unpaid": ${ month16_unpaid }
+      - "month16": ${ month16 }
+      - "month17": ${ month17 }
+      - "month17_unpaid": ${ month17_unpaid }
+      - "month18": ${ month18 }
+      - "month18_unpaid": ${ month18_unpaid }
+      - "month19_unpaid": ${ month19_unpaid }
+      - "month19": ${ month19 }
+      - "month20": ${ month20 }
+      - "month20_unpaid": ${ month20_unpaid }
+      - "month21": ${ month21 }
+      - "month21_unpaid": ${ month21_unpaid }
+      - "month22": ${ month22 }
+      - "month22_unpaid": ${ month22_unpaid }
+      - "month23": ${ month23 }
+      - "month23_unpaid": ${ month23_unpaid }
+      - "month24": ${ month24 }
+      - "month24_unpaid": ${ month24_unpaid }
+      - "months_unpaid_total": ${ months_unpaid_total }
+      - "months_paid_total": ${ months_paid_total }
