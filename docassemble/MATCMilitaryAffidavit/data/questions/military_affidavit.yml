@@ -24,64 +24,19 @@ comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_military_affidavit
 code: |
-  nav.set_section("introduction")
-  #al_intro_screen
   military_affidavit_intro
-  
-  nav.set_section("about_you")
-  user_role
-  
-  #attorney path
-  
-  if user_role == "attorney":
-    attorneys.there_are_any = True
-    attorneys.gather()
-    if attorneys.number_gathered() > 0:
-      attorneys[0].bbo_number
-      attorneys[0].phone_number
-      attorneys[0].email
-      attorneys[0].address.address
-  
-  #user filling out path
-  
-  else: 
-    attorneys.there_are_any = False
-    is_there_helper 
-    if is_there_helper:
-      helper_attorney
-      helper_bbo
- 
-  users.gather()
-  if user_role != "attorney":
-    users[0].address.address
-    users[0].phone_number
-    users[0].email
-  
-  nav.set_section("case_information")
-  docket_number
-  trial_court
-
-  nav.set_section("gather_parties")
-  other_parties.gather()
-  
-  nav.set_section("military_status")
   set_all_military_statuses
   if any([party.military_status == "past" for party in other_parties]):
     set_concluded_service_dates
+    service_dates_formatted
   if any([party.military_status == "unknown" for party in other_parties]):
     bond_agreement_i_understand
   in_service
-  
-  nav.set_section("supporting_documentation")
   has_used_scra_site
   if has_used_scra_site: scra_site_facts_additional_facts
   else: not_used_scra_site_facts_required
-  
-  nav.set_section("review_military_affidavit")
-  signature_date
   users[0].signature
   military_affidavit_case_name
-  
   interview_order_military_affidavit = True
 ---
 code: |
