@@ -90,8 +90,6 @@ code: |
   nav.set_section("about_you")
   user_role
   
-  #attorney path
-  
   if user_role == "attorney":
     attorneys.there_are_any = True
     attorneys.gather()
@@ -100,8 +98,7 @@ code: |
       attorneys[0].phone_number
       attorneys[0].email
       attorneys[0].address.address
-  
-  #user filling out path
+
   
   else: 
     attorneys.there_are_any = False

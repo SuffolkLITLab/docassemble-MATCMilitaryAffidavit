@@ -64,20 +64,15 @@ fields:
       val("other_parties[0].vacated") || val("other_parties[1].vacated") || val("other_parties[2].vacated") || val("other_parties[3].vacated") || val("other_parties[4].vacated") || val("other_parties[5].vacated")
 continue button field: set_vacated_status
 ---
-code: |
-  vacated_parties = [party.name_full() for party in other_parties if getattr(party, "vacated", None) is True]
-  parties_vacated = len(vacated_parties) > 0
-  premise_occupy = any(getattr(party, "vacated", None) is False for party in other_parties)
----
 id: use_rent_worksheet
 question: |
-  How would you like to calculate the unpaid rent?
+  How would you like tell us about rent owed?
 fields:
-  - no label: use_rent_worksheet
+  - How would like to enter: use_rent_worksheet
     datatype: radio
     choices:
       - I want to enter the total amounts directly: False
-      - I want to fill out a detailed worksheet month by month: True
+      - I want to fill out the rent month by month: True
 ---
 id: simple_rent_totals
 question: |

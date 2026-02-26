@@ -265,7 +265,7 @@ id: is_there_helper
 question: |
   Are you receiving help from an attorney to complete this form?
 fields:
-  - "": is_there_helper
+  - no label: is_there_helper
     datatype: yesnoradio
 ---
 id: helper_attorney
@@ -515,21 +515,20 @@ code: |
   concluded_service_parties = DAList()
   unsure_serving_parties = DAList()
 
-  for party in users + other_parties:
-      if hasattr(party, 'military_status'):
-          if party.military_status == "Active Duty":
-              serving_parties.append(party)
-          elif party.military_status == "Not Active Duty":
-              concluded_service_parties.append(party)
-          elif party.military_status == "Unknown":
-              unsure_serving_parties.append(party)
+# for party in users + other_parties:
+#     if hasattr(party, 'military_status'):
+#         if party.military_status == "Active Duty":
+#             serving_parties.append(party)
+#         elif party.military_status == "Not Active Duty":
+#             concluded_service_parties.append(party)
+#         elif party.military_status == "Unknown":
+#             unsure_serving_parties.append(party)
 
 ---
 id: supporting the affidavit
 question: |
   How do you know the military status of the parties in this case?
 subquestion: |
-    You will be required to provide proof of how you know the defendant's military status later in this interview. 
     
     You have two options:
 
@@ -684,6 +683,7 @@ review:
 #  ${ exhibit_attachment.exhibits.rearrange_exhibits_table }
 ##  ${ exhibit_attachment.add_action() }
 ---
+id: revisit_plaintiffs
 continue button field: plaintiffs.revisit
 question: |
   Edit plaintiffs
@@ -702,6 +702,7 @@ edit:
 confirm: True
 
 ---
+id: revisit_defendants
 continue button field: defendants.revisit
 question: |
   Edit defendants
@@ -719,6 +720,7 @@ edit:
   - name.first
 confirm: True
 ---
+id: revisit_docket_number
 continue button field: docket_number.revisit
 question: |
   Edit docket_number
@@ -736,6 +738,7 @@ edit: True
 confirm: True
 
 ---
+id: revisit_users
 continue button field: users.revisit
 question: |
   Edit users
