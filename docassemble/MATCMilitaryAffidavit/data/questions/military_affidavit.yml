@@ -50,35 +50,26 @@ subject: |
 content: |
   You can demonstrate military status through the following:
   
-  - SCRA website search: Use the official search portal and attach the result (PDF or screenshot).
+  - SCRA website search: Use the official search portal and attach the result (PDF or screenshot). [SCRA Website](https://scra.dmdc.osd.mil/scra/#/home)
   
-  - A statement of your own knowledge: For example, the person works in civillian employment, or has shared their status with you. Here a simple clear statement on this form is sufficient. 
+  - Explain to the court: For example, the person works in civilian employment, or has shared their status with you. Simple and clear explanations are best.
 
 ---
 id: Military_Affidavit
 continue button field: military_affidavit_intro
 question: |
-  Military Affidavit
+  Military affidavit introduction
 subquestion: |
-  This interview will help you fill out a Military Affidavit,
-  which declares whether anybody who is part of this case is
-  currently serving in a branch of the U.S. military.
+  This interview will help you fill out a military affidavit. 
+  It tells the court if anyone in this case is serving in military right now.
+
+  This military affidavit has to be filed even if you know
+  no one is in the military right now.
 
   If someone is in the military, they may have special
-  protections under the Servicemembers Civil Relief Act.
-
-  This affidavit has to be filed even if none of the parties are
-  in the military right now.
-    
-  You will be required to tell the court how you know by providing proof of the defendant's military status. If you do not have this knowledge you cannot complete the military affiadvit.
-
-  You have two options:
- 
-  1. Use the SCRA Website — If you know the defendant’s date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
-
-    2. If you didn’t use the SCRA Website, explain how else you found out the defendant’s military status. For example, you may have spoken to the defendant, or contacted a branch of the military listed [here](https://www.defense.gov/Resources/Military-Departments/).
+  protections from a law called the Servicemembers Civil Relief Act (SCRA).
   
-  
+  You will have to tell the court how you know if the parties are in the   military and have proof.
   ${ collapse_template(proof_of_status) }
 ---
 id: User Type
@@ -270,7 +261,7 @@ fields:
 ---
 id: helper_attorney
 question: |
-  Please enter the attorney's information.
+  Enter the attorney's information.
 fields:
   - "Attorney's name": helper_attorney
   - "Attorney's BBO number (if known)": helper_bbo
@@ -326,7 +317,7 @@ data:
 continue button field: set_all_military_statuses
 id: select all statuses
 question: |
-  Select the current military service for each person presented
+  Choose the current military service for each person presented
 subquestion: |
   For each defendant:
 
@@ -376,7 +367,7 @@ id: set all concluded service parties dates
 question: |
   When did the military service end?
 subquestion: |
-  For each person whose military service has ended, select the date their service concluded.
+  For each person listed, tell us when their service ended.
 fields:
   - code: |
       sum([
@@ -422,7 +413,7 @@ id: unsure military service
 question: |
   Because you are unsure about the military status of some parties
 subquestion: |
-  If you select "unsure" for any party, the judge may make you pay
+  If you choose "unsure" for any party, the judge may make you pay
   a bond to protect the party's rights under the Servicemembers Civil Relief Act,
   before the judge makes the judgment against the party final.
 
@@ -499,7 +490,7 @@ sets:
 question: |
   What is your contact information?
 subquestion: |
-  Please provide at least one way we can contact you.
+  Provide at least one way we can contact you.
 fields:
   - Phone number: users[0].phone_number
     required: False
@@ -508,7 +499,7 @@ fields:
     required: False
 validation code: |
   if not users[0].phone_number and not users[0].email:
-    validation_error("Please provide at least one contact method (phone number or email).")
+    validation_error("Provide at least one contact method (phone number or email).")
 ---
 code: |
   serving_parties = DAList()
@@ -534,7 +525,7 @@ subquestion: |
 
     1. Use the SCRA Website — If you know the defendant’s date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
 
-    2. Use another method — If you didn’t use the SCRA Website, explain how else you found out the defendant’s military status. For example, you may have spoken to the defendant, or contacted a branch of the military listed [here](https://www.defense.gov/Resources/Military-Departments/).
+    2. Use another method — If you did not use the SCRA Website, explain how else you found out the defendant’s military status. For example, you may have spoken to the defendant, or contacted a branch of the military listed [here](https://www.defense.gov/Resources/Military-Departments/).
 
 fields:
   - "Did you use the Servicemembers Civil Relief Act Website?": has_used_scra_site
@@ -564,7 +555,7 @@ content: |
   
   [FILE Redacted_results_scra.png]
   
-  You can save this certificate as a PDF or take a screenshot to upload here.
+  You can save this certificate as a PDF or take a screen shot to upload here.
 ---
 id: not Used SCRA
 question: Because you did not use the SCRA Website...

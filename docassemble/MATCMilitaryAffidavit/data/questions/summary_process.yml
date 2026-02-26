@@ -13,18 +13,17 @@ template: sumpro_ex
 subject: |
   What is a Summary Process Case?
 content: |
-  In Massachusetts, an eviction case is legally called a "Summary Process" case. 
-  These are typically filed in Housing Court when a landlord is seeking to remove 
-  a tenant from a rental property. 
+  In Massachusetts, an eviction case is called a "Summary Process" case. 
+  These are usually filed in Housing Court when a landlord wants to remove    a tenant from a rental property. 
   
-  Common causes of summary process cases include: 
+  Common summary process cases:
   
   - Tenant not paying rent
   - Tenant breaking the lease
   - Tenant not leaving after the lease ends
   - Tenant not leaving after proper notice
   
-  If your goal is to remove someone from a rental unit, it is likely a summary process case.
+  If your goal is for someone to leave a rental unit, it is likely a summary process case.
 ---
 id: confirm_summary_process
 question: |
@@ -58,7 +57,7 @@ fields:
         }
         for party in sorted(other_parties)
       ]
-  - Select the date the defendant vacated the property: vacated_date
+  - Choose the date the defendant vacated the property: vacated_date
     datatype: ThreePartsDate
     js show if: |
       val("other_parties[0].vacated") || val("other_parties[1].vacated") || val("other_parties[2].vacated") || val("other_parties[3].vacated") || val("other_parties[4].vacated") || val("other_parties[5].vacated")
@@ -66,13 +65,13 @@ continue button field: set_vacated_status
 ---
 id: use_rent_worksheet
 question: |
-  How would you like tell us about rent owed?
+  How would you like to tell us about rent owed?
 fields:
-  - How would like to enter: use_rent_worksheet
+  - Enter rent amounts: use_rent_worksheet
     datatype: radio
     choices:
-      - I want to enter the total amounts directly: False
-      - I want to fill out the rent month by month: True
+      - By entering the amount : False
+      - By using a worksheet: True
 ---
 id: simple_rent_totals
 question: |
@@ -85,10 +84,9 @@ fields:
 ---
 id: monthly_rent_amount
 question: |
-  What was the monthly rent amount?
+  What was rent each month?
 subquestion: |
-  Please enter the dollar amount that was due each month for rent.  
-  You will have a chance to adjust this amount for individual months later if needed.
+  Enter the dollar amount that was owed for a month.  
 fields:
   - "Monthly rent amount": monthly_rent
     datatype: currency
@@ -111,9 +109,9 @@ code: |
 ---
 id: rent_unpaid_period
 question: |
-  After filing the lawsuit, when did the unpaid rent period begin and end?
+  After filing the lawsuit, when did the party not pay rent?
 subquestion: |
-  Please enter the first and last month and year that rent went unpaid after you filed the lawsuit.
+  Enter the first and month and year that rent went unpaid after you filed the lawsuit. 
 fields:
   - "First month": unpaid_start_month
     datatype: dropdown
@@ -157,9 +155,9 @@ code: |
 ---
 id: simple_unpaid_rent_start_date
 question: |
-  When did the unpaid rent period begin?
+  When did the party not pay rent?
 subquestion: |
-  Enter the first month and year that rent went unpaid after you filed the lawsuit.
+  Enter the first month and year that rent was not paid after you filed the lawsuit.
 fields:
   - "Month": simple_unpaid_start_month
     datatype: dropdown
@@ -179,8 +177,8 @@ question: |
   For each month listed below, please:
 subquestion: |
   1. Verify the month name heading.  
-  2. Review the prefilled Rent Due amount.  
-  3. Enter the actual amount Paid in the Rent Paid box.
+  2. Review the rent due amount.  
+  3. If any rent was paid enter the amount.
 fields:
   - code: |
       sum([

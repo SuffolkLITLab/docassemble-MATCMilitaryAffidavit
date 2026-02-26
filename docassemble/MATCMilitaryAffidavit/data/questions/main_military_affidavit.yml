@@ -54,9 +54,9 @@ sections:
   - case_information: Case information
   - gather_parties: Gather parties
   - military_status: Military status information
-  - summary_process: Summary Process (Eviction) Information
   - supporting_documentation: Supporting your answers
-  - review_military_affidavit: Review your answers
+  - summary_process: Summary Process (Eviction) Information
+  #- review_military_affidavit: Review your answers
 ---
 ###################### Main order ######################
 comment: |
@@ -132,7 +132,12 @@ code: |
   if any([party.military_status == "unknown" for party in other_parties]):
     bond_agreement_i_understand
   in_service
-
+  
+  
+  nav.set_section("supporting_documentation")
+  has_used_scra_site
+  if has_used_scra_site: scra_site_facts_additional_facts
+  else: not_used_scra_site_facts_required
   
   # NEW SECTION: Summary Process questions
   nav.set_section("summary_process")
@@ -150,13 +155,6 @@ code: |
       simple_unpaid_start_month
       simple_date_set
     calculate_rent_totals
-
-   
-  
-  nav.set_section("supporting_documentation")
-  has_used_scra_site
-  if has_used_scra_site: scra_site_facts_additional_facts
-  else: not_used_scra_site_facts_required
   
   nav.set_section("review_military_affidavit")
   signature_date
