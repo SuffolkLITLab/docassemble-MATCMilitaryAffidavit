@@ -8,6 +8,7 @@ objects:
       title="Military Affidavit Rule 10", 
       filename="military_affidavit_r10", 
       has_addendum=False)
+  - rent_months: DAList.using(object_type=DAObject, auto_gather=False, gathered=True)
 ---
 template: sumpro_ex
 subject: |
@@ -63,6 +64,13 @@ fields:
       val("other_parties[0].vacated") || val("other_parties[1].vacated") || val("other_parties[2].vacated") || val("other_parties[3].vacated") || val("other_parties[4].vacated") || val("other_parties[5].vacated")
 continue button field: set_vacated_status
 ---
+id: has_unpaid_rent
+question: |
+  Is there unpaid rent to tell the court about?
+fields:
+  - no label: has_unpaid_rent
+    datatype: yesnoradio
+---
 id: use_rent_worksheet
 question: |
   How would you like to tell us about rent owed?
@@ -115,16 +123,16 @@ subquestion: |
 fields:
   - "First month": unpaid_start_month
     datatype: dropdown
-    code: months_choices  # <-- Changed from 'choices:' to 'code:'
+    code: months_choices
   - "First year": unpaid_start_year
     datatype: dropdown
-    code: years_choices   # <-- Changed from 'choices:' to 'code:'
+    code: years_choices
   - "Last month": unpaid_end_month
     datatype: dropdown
-    code: months_choices  # <-- Changed from 'choices:' to 'code:'
+    code: months_choices
   - "Last year": unpaid_end_year
     datatype: dropdown
-    code: years_choices   # <-- Changed from 'choices:' to 'code:'
+    code: years_choices
 continue button field: set_unpaid_rent_month_year
 ---
 code: |
@@ -153,6 +161,48 @@ code: |
           
   set_months_to_calc = True
 ---
+code: |
+  rent_months.clear()
+  for idx, (key, label) in enumerate(months_to_calc):
+    item = rent_months.appendObject()
+    item.key = key
+    item.label = label
+    item.is_last = (idx == len(months_to_calc) - 1)
+  rent_months_initialized = True
+---
+code: |
+  rent_months_initialized
+  for i in range(len(rent_months)):
+    item = rent_months[i]
+    if any(getattr(rent_months[j], 'rest_are_zero', False) for j in range(i)):
+      item.rent_due = monthly_rent
+      item.rent_paid = 0
+      item.rest_are_zero = False
+    else:
+      item.rent_paid
+  collect_rent_months = True
+---
+id: rent_month_screen
+generic object: DAObject
+sets:
+  - x.rent_paid
+  - x.rent_due
+  - x.rest_are_zero
+question: |
+  Rent for ${ x.label }
+fields:
+  - Rent due: x.rent_due
+    datatype: currency
+    default: ${ monthly_rent }
+  - Rent paid: x.rent_paid
+    datatype: currency
+    default: 0
+  - The rest of the months had $0 paid: x.rest_are_zero
+    datatype: yesno
+    show if:
+      code: |
+        not x.is_last
+---
 id: simple_unpaid_rent_start_date
 question: |
   When did the party not pay rent?
@@ -172,74 +222,39 @@ code: |
   first_month_year = simple_start.strftime("%B %Y")
   simple_date_set = True
 ---
-id: rent_worksheet
-question: |
-  For each month listed below, please:
-subquestion: |
-  1. Verify the month name heading.  
-  2. Review the rent due amount.  
-  3. If any rent was paid enter the amount.
-fields:
-  - code: |
-      sum([
-        [
-          {"note": f"**{label}**", "item grid": {"width": 12, "breakpoint": "sm"}},
-          {
-            "field": f"rent_due_{key}",
-            "label": "Rent due",
-            "datatype": "currency",
-            "default": monthly_rent,
-            "item grid": {"width": 6, "breakpoint": "sm"}
-          },
-          {
-            "field": f"rent_paid_{key}",
-            "label": "Rent paid",
-            "datatype": "currency",
-            "item grid": {"width": 6, "breakpoint": "sm"}
-          }
-        ]
-        for key, label in months_to_calc
-      ], [])
-continue button field: rent_worksheet
----
 id: calculate_monthly_unpaid_and_paid
 code: |
-  if use_rent_worksheet:
-    # Initialize running totals
-    months_unpaid_total = 0
-    months_paid_total = 0
-
-    for i, (key, label) in enumerate(months_to_calc):
-        # Look up amount paid this month (defaults to 0)
-        paid = value(f"rent_paid_{key}") if defined(f"rent_paid_{key}") else 0
-        # Calculate what's still owed
-        unpaid = monthly_rent - paid
-
-        # Dynamically set month1, month1_paid, month1_unpaid, month2, month2_paid, ...
-        define(f"month{i+1}", label)
-        define(f"month{i+1}_paid", paid)
-        define(f"month{i+1}_unpaid", unpaid)
-
-        # Add to grand totals
+  if has_unpaid_rent:
+    if use_rent_worksheet:
+      months_unpaid_total = 0
+      months_paid_total = 0
+      for i, item in enumerate(rent_months):
+        paid = getattr(item, 'rent_paid', 0) or 0
+        due = getattr(item, 'rent_due', monthly_rent)
+        unpaid = due - paid
         months_paid_total += paid
         months_unpaid_total += unpaid
-    
-    # Fill remaining months (up to 24) with empty values
-    for j in range(len(months_to_calc) + 1, 25):
+        define(f"month{i+1}", item.label)
+        define(f"month{i+1}_paid", paid)
+        define(f"month{i+1}_unpaid", unpaid)
+      for j in range(len(rent_months) + 1, 25):
+        define(f"month{j}", "")
+        define(f"month{j}_paid", 0)
+        define(f"month{j}_unpaid", 0)
+    else:
+      months_paid_total = simple_rent_paid
+      months_unpaid_total = simple_rent_owed
+      for j in range(1, 25):
         define(f"month{j}", "")
         define(f"month{j}_paid", 0)
         define(f"month{j}_unpaid", 0)
   else:
-    # Simple totals path
-    months_paid_total = simple_rent_paid
-    months_unpaid_total = simple_rent_owed
-    
-    # Set all month fields to empty
+    months_paid_total = 0
+    months_unpaid_total = 0
     for j in range(1, 25):
-        define(f"month{j}", "")
-        define(f"month{j}_paid", 0)
-        define(f"month{j}_unpaid", 0)
-  
+      define(f"month{j}", "")
+      define(f"month{j}_paid", 0)
+      define(f"month{j}_unpaid", 0)
   calculate_rent_totals = True
 ---
 code: |
