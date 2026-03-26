@@ -291,19 +291,21 @@ attachment:
       - "docket_number__2": ${ docket_number }
       - "trial_court_division__1": ${ trial_court.division }
       - "trial_court_division__2": ${ trial_court.division }
+      # CHANGE #2: Applied short_list(limit=2) to users and other_parties in petitioners field
       - "petitioners": |
           % if user_ask_role == "plaintiff":
             % if len(other_parties):
-          ${ users }
+          ${ users.short_list(limit=2) }
             % else:
-          In the interests of ${ users }
+          In the interests of ${ users.short_list(limit=2) }
             % endif
           % else:
-          ${ other_parties }
+          ${ other_parties.short_list(limit=2) }
           % endif
+      # CHANGE #2: Applied short_list(limit=2) to users in respondents field
       - "respondents": |
           % if user_ask_role == "defendant":
-          ${ users }
+          ${ users.short_list(limit=2) }
           % else:
           ${ other_parties.short_list(limit=2) }
           % endif
