@@ -26,11 +26,11 @@ id: interview_order_military_affidavit
 code: |
   military_affidavit_intro
   set_all_military_statuses
+  if any([party.military_status == "unknown" for party in other_parties]):
+    bond_agreement_i_understand
   if any([party.military_status == "past" for party in other_parties]):
     set_concluded_service_dates
     service_dates_formatted
-  if any([party.military_status == "unknown" for party in other_parties]):
-    bond_agreement_i_understand
   in_service
   has_used_scra_site
   if has_used_scra_site: scra_site_facts_additional_facts
@@ -52,7 +52,7 @@ content: |
   
   - SCRA website search: Use the official search portal and attach the result (PDF or screenshot). [SCRA Website](https://scra.dmdc.osd.mil/scra/#/home)
   
-  - Explain to the court: For example, the person works in civilian employment, or has shared their status with you. Simple and clear explanations are best.
+  - Explain to the court with a simple and clear explanation.
 
 ---
 id: Military_Affidavit
@@ -69,8 +69,10 @@ subquestion: |
   If someone is in the military, they may have special
   protections from a law called the Servicemembers Civil Relief Act (SCRA).
   
-  You will have to tell the court how you know if the parties are in the   military and have proof.
+  You will have to tell the court how you know if the parties are serving in the military and have proof.
+  ${ collapse_template(explain_military_service)}
   ${ collapse_template(proof_of_status) }
+  
 ---
 id: User Type
 question: |
@@ -317,16 +319,17 @@ data:
 continue button field: set_all_military_statuses
 id: select all statuses
 question: |
-  Choose the current military service for each person presented
+  Are these parties in active military service?
 subquestion: |
+  ${ collapse_template(explain_military_service)}
+  ${ collapse_template(proof_of_status) }
   For each defendant:
 
   * If they are currently serving active duty in the military, answer "Yes".
   * If they are not serving in the military, answer "No"
-  * If they concluded their service, answer "Past"
+  * If they finished their service, answer "Past"
   * If you are unsure, answer "Unknown"
 
-  ${ collapse_template(explain_military_service)}
 fields:
   - code: |
       [
@@ -502,14 +505,14 @@ code: |
 ---
 id: supporting the affidavit
 question: |
-  How do you know the military status of the parties in this case?
+  How did you know the military status of the parties in this case?
 subquestion: |
     
-    You have two options:
+    You had two options:
 
-    1. Use the SCRA Website — If you know the defendant's date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
+    1. Use the SCRA Website — If you know the defendant's date of birth or Social Security number, you can search their military status [SCRA Website](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
 
-    2. Use another method — If you did not use the SCRA Website, explain how else you found out the defendant's military status. For example, you may have spoken to the defendant, or contacted a branch of the military listed [here](https://www.defense.gov/Resources/Military-Departments/).
+    2. Use another method — If you did not use the SCRA Website, explain how else you found out the defendant's military status. For example, you may have spoken to the defendant, or contacted their [Military Branches]. (https://www.defense.gov/Resources/Military-Departments/).
 
 fields:
   - "Did you use the Servicemembers Civil Relief Act Website?": has_used_scra_site
@@ -539,7 +542,7 @@ content: |
   
   [FILE Redacted_results_scra.png]
   
-  You can save this certificate as a PDF or take a screen shot to upload here.
+  You can save this certificate as a PDF or take a screenshot to upload here.
 ---
 id: not Used SCRA
 question: Because you did not use the SCRA Website...
@@ -548,7 +551,7 @@ fields:
     input type: area
     required: False
     help: |
-      For example: I know the party personally.
+      Simply tell the court how you know if the parties are in service.
 ---
 code: |
   signature_fields = ['users[0].signature']

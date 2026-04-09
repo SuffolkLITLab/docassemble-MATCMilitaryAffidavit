@@ -42,6 +42,9 @@ code: |
   interview_short_title = "Tell the court whether any of the people in your case have served in the military"
 ---
 code: |
+  user_ask_role = "plaintiff"
+---
+code: |
   al_form_type = "existing_case" 
 ---
 objects:
@@ -106,7 +109,6 @@ code: |
       helper_attorney
       helper_bbo
   
-  user_ask_role
   
   users.gather()
   if user_role != "attorney":
@@ -125,11 +127,11 @@ code: |
   
   nav.set_section("military_status")
   set_all_military_statuses
+  if any([party.military_status == "unknown" for party in other_parties]):
+    bond_agreement_i_understand  
   if any([party.military_status == "past" for party in other_parties]):
     set_concluded_service_dates
     service_dates_formatted
-  if any([party.military_status == "unknown" for party in other_parties]):
-    bond_agreement_i_understand
   in_service
   
   
