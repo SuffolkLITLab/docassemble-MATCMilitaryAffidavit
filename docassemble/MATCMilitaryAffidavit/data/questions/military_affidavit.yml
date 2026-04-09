@@ -363,6 +363,7 @@ content: |
 
   Someone who is otherwise in active service but is currently absent because of sickness, injury, leave, or other lawful cause is still considered to be in active military service.
 ---
+# CHANGE #3: Replaced custom month/day/year dropdowns with ThreePartsDate
 id: set all concluded service parties dates
 question: |
   When did the military service end?
@@ -374,25 +375,10 @@ fields:
         [
           {"note": f"**{party.name_full()}**", "item grid": {"width": 12, "breakpoint": "sm"}},
           {
-            "field": party.attr_name("service_ended_month"),
-            "label": "Month",
-            "datatype": "dropdown",
-            "code": "months_choices",
-            "item grid": {"width": 4, "breakpoint": "sm"}
-          },
-          {
-            "field": party.attr_name("service_ended_day"),
-            "label": "Day",
-            "datatype": "dropdown",
-            "choices": [str(d) for d in range(1, 32)],
-            "item grid": {"width": 4, "breakpoint": "sm"}
-          },
-          {
-            "field": party.attr_name("service_ended_year"),
-            "label": "Year",
-            "datatype": "dropdown",
-            "code": "years_choices",
-            "item grid": {"width": 4, "breakpoint": "sm"}
+            "field": party.attr_name("service_ended_date"),
+            "label": "Date service ended",
+            "datatype": "ThreePartsDate",
+            "item grid": {"width": 12, "breakpoint": "sm"}
           }
         ]
         for party in sorted(other_parties)
@@ -400,13 +386,8 @@ fields:
       ], [])
 continue button field: set_concluded_service_dates
 ---
+# CHANGE #3: Simplified now that ThreePartsDate sets service_ended_date directly
 code: |
-  # Format the service ended date for display in the PDF
-  import calendar
-  for party in other_parties:
-    if party.military_status == "past" and hasattr(party, 'service_ended_month'):
-      month_name = calendar.month_name[int(party.service_ended_month)]
-      party.service_ended_date = f"{month_name} {party.service_ended_day}, {party.service_ended_year}"
   service_dates_formatted = True
 ---
 id: unsure military service
@@ -483,6 +464,7 @@ fields:
   - code: |
       users[0].name_fields()
 ---
+# CHANGE #1: Added phone number validation using phone_number_is_valid()
 id: user contact information
 sets:
     - users[0].phone_number
@@ -498,6 +480,8 @@ fields:
     datatype: email
     required: False
 validation code: |
+  if users[0].phone_number and not phone_number_is_valid(users[0].phone_number):
+    validation_error("Enter a valid phone number.", field="users[0].phone_number")
   if not users[0].phone_number and not users[0].email:
     validation_error("Provide at least one contact method (phone number or email).")
 ---
@@ -523,9 +507,9 @@ subquestion: |
     
     You have two options:
 
-    1. Use the SCRA Website — If you know the defendant’s date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
+    1. Use the SCRA Website — If you know the defendant's date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
 
-    2. Use another method — If you did not use the SCRA Website, explain how else you found out the defendant’s military status. For example, you may have spoken to the defendant, or contacted a branch of the military listed [here](https://www.defense.gov/Resources/Military-Departments/).
+    2. Use another method — If you did not use the SCRA Website, explain how else you found out the defendant's military status. For example, you may have spoken to the defendant, or contacted a branch of the military listed [here](https://www.defense.gov/Resources/Military-Departments/).
 
 fields:
   - "Did you use the Servicemembers Civil Relief Act Website?": has_used_scra_site
@@ -784,23 +768,25 @@ attachment:
       - "court_department_probate_family": ${trial_court.department == "Probate and Family Court"}
       - "court_department_superior": ${trial_court.department == "Superior Court"}
       - "trial_court_division": ${ trial_court.division }
+      # CHANGE #2: Applied short_list(limit=2) to users in petitioners field
       - "petitioners": |
           % if showifdef("military_affidavit_case_name"):
           ${ military_affidavit_case_name }
           % else:
             % if user_ask_role == "plaintiff":
             % if len(other_parties):
-          ${ users }
+          ${ users.short_list(limit=2) }
             % else:
-          In the interests of ${ users }
+          In the interests of ${ users.short_list(limit=2) }
             % endif
             % else:
-          ${ other_parties }
+          ${ other_parties.short_list(limit=2) }
             % endif
           % endif
+      # CHANGE #2: Applied short_list(limit=2) to users in respondents field
       - "respondents": |
           % if user_ask_role == "defendant":
-          ${ users }
+          ${ users.short_list(limit=2) }
           % else:
           ${ other_parties.short_list(limit=2) }
           % endif
@@ -812,9 +798,10 @@ attachment:
       - "has_not_serving_parties": ${ True if not_service else False }
       - "not_serving_parties": ${ not_serving_parties_text }
       - "has_concluded_service_parties": ${ True if past_service_checkbox else False }
+      # CHANGE #3: Use .format() on ThreePartsDate object
       - "concluded_service_parties_date": |
           % if past_service_checkbox:
-          ${ comma_and_list([f"{party.name_full()}: {party.service_ended_date}" for party in other_parties if party.military_status == "past" and hasattr(party, 'service_ended_date')]) }
+          ${ comma_and_list([f"{party.name_full()}: {party.service_ended_date.format()}" for party in other_parties if party.military_status == "past" and hasattr(party, 'service_ended_date')]) }
           % endif
       - "has_unsure_serving_parties": ${ True if unable_service else False }
       - "unsure_serving_parties": ${ unsure_serving_parties_text }
@@ -862,4 +849,3 @@ attachment:
           ${ users[0].email }
           % endif
 ---
-

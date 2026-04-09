@@ -64,7 +64,6 @@ comment: |
   Delete mandatory: True to include in another interview
 mandatory: True
 code: |
-  # military_affidavit_intro
   nav.set_section("review_military_affidavit")
   interview_order_military_affidavit
   signature_date
@@ -98,7 +97,7 @@ code: |
       attorneys[0].phone_number
       attorneys[0].email
       attorneys[0].address.address
-
+ 
   
   else: 
     attorneys.there_are_any = False
@@ -120,7 +119,7 @@ code: |
   docket_number
   trial_court
   summary_process_confirmed # Auto-detect from docket number
-
+ 
   nav.set_section("gather_parties")
   other_parties.gather()
   
@@ -143,17 +142,19 @@ code: |
   nav.set_section("summary_process")
   if summary_process_confirmed:
     set_vacated_status
-    use_rent_worksheet
-    if use_rent_worksheet:
-      monthly_rent
-      set_unpaid_rent_month_year
-      set_months_to_calc
-      rent_worksheet
-    else:
-      simple_rent_paid
-      simple_rent_owed
-      simple_unpaid_start_month
-      simple_date_set
+    has_unpaid_rent
+    if has_unpaid_rent:
+      use_rent_worksheet
+      if use_rent_worksheet:
+        monthly_rent
+        set_unpaid_rent_month_year
+        set_months_to_calc
+        collect_rent_months
+      else:
+        simple_rent_paid
+        simple_rent_owed
+        simple_unpaid_start_month
+        simple_date_set
     calculate_rent_totals
   
   nav.set_section("review_military_affidavit")
@@ -171,13 +172,13 @@ subquestion: |
   Thank you ${users}. Your form is ready to download and deliver.
   
   View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
-
+ 
   ${ action_button_html(url_action('review_military_affidavit'), label='Edit answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }
   
-
+ 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
-
+ 
 progress: 100
