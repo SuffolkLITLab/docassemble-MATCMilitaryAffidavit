@@ -58,11 +58,14 @@ fields:
         }
         for party in sorted(other_parties)
       ]
-  - Choose the date the defendant vacated the property: vacated_date
-    datatype: ThreePartsDate
-    js show if: |
-      val("other_parties[0].vacated") || val("other_parties[1].vacated") || val("other_parties[2].vacated") || val("other_parties[3].vacated") || val("other_parties[4].vacated") || val("other_parties[5].vacated")
 continue button field: set_vacated_status
+---
+id: vacated_date
+question: |
+  When did the defendant vacate the property?
+fields:
+  - Date vacated: vacated_date
+    datatype: ThreePartsDate
 ---
 id: has_unpaid_rent
 question: |

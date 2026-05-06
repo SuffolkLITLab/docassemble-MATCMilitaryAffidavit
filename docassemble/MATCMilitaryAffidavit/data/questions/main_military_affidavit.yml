@@ -144,6 +144,8 @@ code: |
   nav.set_section("summary_process")
   if summary_process_confirmed:
     set_vacated_status
+    if any(getattr(p, 'vacated', False) for p in other_parties):
+      vacated_date
     has_unpaid_rent
     if has_unpaid_rent:
       use_rent_worksheet
