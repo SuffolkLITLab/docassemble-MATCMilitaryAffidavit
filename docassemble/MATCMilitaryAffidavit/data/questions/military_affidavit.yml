@@ -230,30 +230,33 @@ fields:
 template: explain_docket_number
 subject: What is a docket number?
 content: |
-  The docket number is a unique identifier that the court assigns to your case.
+  If you do not know you docket number (also called the "case number"), search by your name on [Mass Courts](https://www.masscourts.org/eservices/home.page.4), You may also see the docket number written on any paperwork you already have.
 
-  A Massachusetts Trial Court docket number will look something like this:
+  A docket number will almost always:
+  - Start with a 2 or 4 digit year
+  - Is followed by a code fro the court, like H84 for the Eastern Housing Court or 52 for Cambridge District Court
+  - Is followed by a code for the case type. like SP, SU, or CV
+  - Ends in a number that is unique to your case, usually with leading zeros to make it 6 digits
+  Example: 30H845P009123 (This is not a real docket number. Use the number on your paperwork)
 
-  15H84CV000436 or 1401CV001026
-
-  The docket number is made of of these parts:
-  Two Digit Year > Two Digit Court Code > Two Letter Case Type > Six Digit Sequence Number
-
+  If you think you know the docket number but you cannot find your case, try making sure that the number follows the rules above. For example, remove any punctuation. 
+  
+  Here is a [link to a video on how to find your docket number through the court system](https://www.mass.gov/info-details/how-to-search-court-dockets#video-introduction:-how-to-search-court-dockets-).
 ---
-id: docket number
+
+id: What_is_your_case_docket_number 
 question: |
   What is the docket number for your case?
 subquestion: |
   ${ collapse_template(explain_docket_number)}
 fields:
-  - I don't know the docket number: dont_know_docket_number
-    datatype: yesno    
+  - This is an initial filing I do not have a docket number yet: dont_know_docket_number
+    datatype: yesno
   - Docket number: docket_number
     hide if: dont_know_docket_number
 validation code: |
-  # This should be safe to 
   if dont_know_docket_number:
-    docket_number = ''      
+    docket_number = ''     
 ---
 template: fee_waiver_docket_number_explanation_template
 subject: |
@@ -284,9 +287,9 @@ fields:
 
       1. Copy a [link to this interview](${ interview_url() }) to return to it later. You can also 
          leave this window or tab open.
-      1. Click the link to visit the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
+      2. Click the link to visit the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
          and search for the name of the party who you are unsure about.
-      1. Save a copy of the results as a PDF or take a screenshot that shows the search
+      3. Save a copy of the results as a PDF or take a screenshot that shows the search
          results. You can also print a copy and attach it to this form later.
 
         You can take a minute to do that now. The website will open in a new tab. When
