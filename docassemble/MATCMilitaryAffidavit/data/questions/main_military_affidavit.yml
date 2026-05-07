@@ -104,10 +104,6 @@ code: |
   
   else: 
     attorneys.there_are_any = False
-    is_there_helper 
-    if is_there_helper:
-      helper_attorney
-      helper_bbo
   
   
   users.gather()

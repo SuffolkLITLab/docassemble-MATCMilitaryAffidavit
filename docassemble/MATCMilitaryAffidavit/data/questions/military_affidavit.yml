@@ -81,8 +81,9 @@ fields:
   - "I am": user_role
     datatype: radio
     choices:
-      - Representing myself: user
+      - The Plaintiff filing this form on behalf of myself: user
       - An attorney: attorney
+      - Attorney assisting in preparation of this pleading in accordance with Trial Court Rule XVI: attorney
 ---
 sets:
   - other_parties[i].name.first
@@ -254,21 +255,6 @@ validation code: |
   if dont_know_docket_number:
     docket_number = ''      
 ---
-id: is_there_helper
-question: |
-  Are you receiving help from an attorney to complete this form?
-fields:
-  - no label: is_there_helper
-    datatype: yesnoradio
----
-id: helper_attorney
-question: |
-  Enter the attorney's information.
-fields:
-  - "Attorney's name": helper_attorney
-  - "Attorney's BBO number (if known)": helper_bbo
-    required: False
----
 template: fee_waiver_docket_number_explanation_template
 subject: |
   What's a docket number?
@@ -323,7 +309,7 @@ question: |
 subquestion: |
   ${ collapse_template(explain_military_service)}
   ${ collapse_template(proof_of_status) }
-  For each defendant:
+  For each party:
 
   * If they are currently serving active duty in the military, answer "Yes".
   * If they are not serving in the military, answer "No"
@@ -399,7 +385,7 @@ question: |
 subquestion: |
   If you choose "unsure" for any party, the judge may make you pay
   a bond to protect the party's rights under the Servicemembers Civil Relief Act,
-  before the judge makes the judgment against the party final.
+  before the judge makes any judgment against the party final.
 
   ${ collapse_template(explain_military_unsure_bond) }
 fields:
@@ -460,14 +446,12 @@ question:  |
   What is your name?
   % endif
 subquestion: |
-  If this case is "in the interests of" someone else, enter their name here.
-  For example, if this case is for a guardianship or conservatorship, enter
-  the name of the person who needs the guardian or conservator.
+  If you are filing this for a Guardianship or Conservatorship case, enter the name of the person you are seeking a guardianship or conservatorship of.
+  
 fields:
   - code: |
       users[0].name_fields()
 ---
-# CHANGE #1: Added phone number validation using phone_number_is_valid()
 id: user contact information
 sets:
     - users[0].phone_number
@@ -530,7 +514,7 @@ fields:
     file css class: None
     accept: |
       ".pdf, .png, application/pdf, image/*"
-  - "Explain how you used the website in your search (optional if evidence attached)": scra_site_facts_additional_facts
+  - "Explain how you used the website in your search, optional if you have attached documentation": scra_site_facts_additional_facts
     required: False
     input type: area
 ---
@@ -547,7 +531,7 @@ content: |
 id: not Used SCRA
 question: Because you did not use the SCRA Website...
 fields:
-  - Explain how you know: not_used_scra_site_facts_required
+  - Explain how you know the military status of the party: not_used_scra_site_facts_required
     input type: area
     required: False
     help: |
@@ -840,8 +824,6 @@ attachment:
       - "user_bbo": |
           % if attorneys.number_gathered() > 0:
           ${ attorneys[0].bbo_number }
-          % elif is_there_helper:
-          ${ helper_bbo }
           % else:
     
           % endif
