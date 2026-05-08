@@ -26,11 +26,11 @@ id: interview_order_military_affidavit
 code: |
   military_affidavit_intro
   set_all_military_statuses
+  if any([party.military_status == "unknown" for party in other_parties]):
+    bond_agreement_i_understand
   if any([party.military_status == "past" for party in other_parties]):
     set_concluded_service_dates
     service_dates_formatted
-  if any([party.military_status == "unknown" for party in other_parties]):
-    bond_agreement_i_understand
   in_service
   has_used_scra_site
   if has_used_scra_site: scra_site_facts_additional_facts
@@ -52,7 +52,7 @@ content: |
   
   - SCRA website search: Use the official search portal and attach the result (PDF or screenshot). [SCRA Website](https://scra.dmdc.osd.mil/scra/#/home)
   
-  - Explain to the court: For example, the person works in civilian employment, or has shared their status with you. Simple and clear explanations are best.
+  - Explain to the court with a simple and clear explanation.
 
 ---
 id: Military_Affidavit
@@ -69,8 +69,10 @@ subquestion: |
   If someone is in the military, they may have special
   protections from a law called the Servicemembers Civil Relief Act (SCRA).
   
-  You will have to tell the court how you know if the parties are in the   military and have proof.
+  You will have to tell the court how you know if the parties are serving in the military and have proof.
+  ${ collapse_template(explain_military_service)}
   ${ collapse_template(proof_of_status) }
+  
 ---
 id: User Type
 question: |
@@ -79,8 +81,9 @@ fields:
   - "I am": user_role
     datatype: radio
     choices:
-      - Representing myself: user
+      - The Plaintiff filing this form on behalf of myself: user
       - An attorney: attorney
+      - Attorney assisting in preparation of this pleading in accordance with Trial Court Rule XVI: attorney
 ---
 sets:
   - other_parties[i].name.first
@@ -227,45 +230,33 @@ fields:
 template: explain_docket_number
 subject: What is a docket number?
 content: |
-  The docket number is a unique identifier that the court assigns to your case.
+  If you do not know you docket number (also called the "case number"), search by your name on [Mass Courts](https://www.masscourts.org/eservices/home.page.4), You may also see the docket number written on any paperwork you already have.
 
-  A Massachusetts Trial Court docket number will look something like this:
+  A docket number will almost always:
+  - Start with a 2 or 4 digit year
+  - Is followed by a code fro the court, like H84 for the Eastern Housing Court or 52 for Cambridge District Court
+  - Is followed by a code for the case type. like SP, SU, or CV
+  - Ends in a number that is unique to your case, usually with leading zeros to make it 6 digits
+  Example: 30H845P009123 (This is not a real docket number. Use the number on your paperwork)
 
-  15H84CV000436 or 1401CV001026
-
-  The docket number is made of of these parts:
-  Two Digit Year > Two Digit Court Code > Two Letter Case Type > Six Digit Sequence Number
-
+  If you think you know the docket number but you cannot find your case, try making sure that the number follows the rules above. For example, remove any punctuation. 
+  
+  Here is a [link to a video on how to find your docket number through the court system](https://www.mass.gov/info-details/how-to-search-court-dockets#video-introduction:-how-to-search-court-dockets-).
 ---
-id: docket number
+
+id: What_is_your_case_docket_number 
 question: |
   What is the docket number for your case?
 subquestion: |
   ${ collapse_template(explain_docket_number)}
 fields:
-  - I don't know the docket number: dont_know_docket_number
-    datatype: yesno    
+  - This is an initial filing I do not have a docket number yet: dont_know_docket_number
+    datatype: yesno
   - Docket number: docket_number
     hide if: dont_know_docket_number
 validation code: |
-  # This should be safe to 
   if dont_know_docket_number:
-    docket_number = ''      
----
-id: is_there_helper
-question: |
-  Are you receiving help from an attorney to complete this form?
-fields:
-  - no label: is_there_helper
-    datatype: yesnoradio
----
-id: helper_attorney
-question: |
-  Enter the attorney's information.
-fields:
-  - "Attorney's name": helper_attorney
-  - "Attorney's BBO number (if known)": helper_bbo
-    required: False
+    docket_number = ''     
 ---
 template: fee_waiver_docket_number_explanation_template
 subject: |
@@ -296,9 +287,9 @@ fields:
 
       1. Copy a [link to this interview](${ interview_url() }) to return to it later. You can also 
          leave this window or tab open.
-      1. Click the link to visit the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
+      2. Click the link to visit the [Servicemembers Civil Relief Act website](https://scra.dmdc.osd.mil/)
          and search for the name of the party who you are unsure about.
-      1. Save a copy of the results as a PDF or take a screenshot that shows the search
+      3. Save a copy of the results as a PDF or take a screenshot that shows the search
          results. You can also print a copy and attach it to this form later.
 
         You can take a minute to do that now. The website will open in a new tab. When
@@ -317,16 +308,17 @@ data:
 continue button field: set_all_military_statuses
 id: select all statuses
 question: |
-  Choose the current military service for each person presented
+  Are these parties in active military service?
 subquestion: |
-  For each defendant:
+  ${ collapse_template(explain_military_service)}
+  ${ collapse_template(proof_of_status) }
+  For each party:
 
   * If they are currently serving active duty in the military, answer "Yes".
   * If they are not serving in the military, answer "No"
-  * If they concluded their service, answer "Past"
+  * If they finished their service, answer "Past"
   * If you are unsure, answer "Unknown"
 
-  ${ collapse_template(explain_military_service)}
 fields:
   - code: |
       [
@@ -396,7 +388,7 @@ question: |
 subquestion: |
   If you choose "unsure" for any party, the judge may make you pay
   a bond to protect the party's rights under the Servicemembers Civil Relief Act,
-  before the judge makes the judgment against the party final.
+  before the judge makes any judgment against the party final.
 
   ${ collapse_template(explain_military_unsure_bond) }
 fields:
@@ -457,14 +449,12 @@ question:  |
   What is your name?
   % endif
 subquestion: |
-  If this case is "in the interests of" someone else, enter their name here.
-  For example, if this case is for a guardianship or conservatorship, enter
-  the name of the person who needs the guardian or conservator.
+  If you are filing this for a Guardianship or Conservatorship case, enter the name of the person you are seeking a guardianship or conservatorship of.
+  
 fields:
   - code: |
       users[0].name_fields()
 ---
-# CHANGE #1: Added phone number validation using phone_number_is_valid()
 id: user contact information
 sets:
     - users[0].phone_number
@@ -502,14 +492,14 @@ code: |
 ---
 id: supporting the affidavit
 question: |
-  How do you know the military status of the parties in this case?
+  How did you know the military status of the parties in this case?
 subquestion: |
     
-    You have two options:
+    You had two options:
 
-    1. Use the SCRA Website — If you know the defendant's date of birth or Social Security number, you can search their military status [here](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
+    1. Use the SCRA Website — If you know the defendant's date of birth or Social Security number, you can search their military status [SCRA Website](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
 
-    2. Use another method — If you did not use the SCRA Website, explain how else you found out the defendant's military status. For example, you may have spoken to the defendant, or contacted a branch of the military listed [here](https://www.defense.gov/Resources/Military-Departments/).
+    2. Use another method — If you did not use the SCRA Website, explain how else you found out the defendant's military status. For example, you may have spoken to the defendant, or contacted their [Military Branches]. (https://www.defense.gov/Resources/Military-Departments/).
 
 fields:
   - "Did you use the Servicemembers Civil Relief Act Website?": has_used_scra_site
@@ -527,7 +517,7 @@ fields:
     file css class: None
     accept: |
       ".pdf, .png, application/pdf, image/*"
-  - "Explain how you used the website in your search (optional if evidence attached)": scra_site_facts_additional_facts
+  - "Explain how you used the website in your search, optional if you have attached documentation": scra_site_facts_additional_facts
     required: False
     input type: area
 ---
@@ -539,16 +529,16 @@ content: |
   
   [FILE Redacted_results_scra.png]
   
-  You can save this certificate as a PDF or take a screen shot to upload here.
+  You can save this certificate as a PDF or take a screenshot to upload here.
 ---
 id: not Used SCRA
 question: Because you did not use the SCRA Website...
 fields:
-  - Explain how you know: not_used_scra_site_facts_required
+  - Explain how you know the military status of the party: not_used_scra_site_facts_required
     input type: area
     required: False
     help: |
-      For example: I know the party personally.
+      Simply tell the court how you know if the parties are in service.
 ---
 code: |
   signature_fields = ['users[0].signature']
@@ -837,8 +827,6 @@ attachment:
       - "user_bbo": |
           % if attorneys.number_gathered() > 0:
           ${ attorneys[0].bbo_number }
-          % elif is_there_helper:
-          ${ helper_bbo }
           % else:
     
           % endif
