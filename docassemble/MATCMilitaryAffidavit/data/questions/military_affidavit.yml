@@ -133,14 +133,14 @@ question: |
 fields:
   - code: |
       attorneys[i].name_fields()
-  - "BBO number": attorneys[i].bbo_number
+  - "BBO number (required)": attorneys[i].bbo_number
     maxlength: 6
     required: True
     under text: |
       [Click here](https://www.massbbo.org/bbolookup.php) to look up your BBO number.
-  - Phone number: attorneys[i].phone_number
+  - "Phone number (required)": attorneys[i].phone_number
     required: True
-  - Email: attorneys[i].email
+  - "Email (required)": attorneys[i].email
     datatype: email
     required: True
 ---
@@ -497,9 +497,9 @@ subquestion: |
     
     You had two options:
 
-    1. Use the SCRA Website — If you know the defendant's date of birth or Social Security number, you can search their military status [SCRA Website](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
+    1. Use the Servicemembers Civil Relief Act (SCRA) Website — If you know the defendant's date of birth or Social Security number, you can search their military status [SCRA Website](https://scra.dmdc.osd.mil/scra/#/home). The website will create a certificate you must send to the court.
 
-    2. Use another method — If you did not use the SCRA Website, explain how else you found out the defendant's military status. For example, you may have spoken to the defendant, or contacted their [Military Branches]. (https://www.defense.gov/Resources/Military-Departments/).
+    2. Use another method — If you did not use the SCRA Website, explain how else you found out the defendant's military status. For example, you may have spoken to the defendant, or contacted their [Military Branches](https://www.defense.gov/Resources/Military-Departments/).
 
 fields:
   - "Did you use the Servicemembers Civil Relief Act Website?": has_used_scra_site
@@ -511,7 +511,7 @@ question: Information required from SCRA website.
 subquestion: |
   ${ collapse_template(scra_example) }
 fields:
-  - Attach a copy of the search results if you have them: military_affidavit_proof_attachment.file
+  - Attach a copy of the search results (required): military_affidavit_proof_attachment.file
     datatype: file
     required: True
     file css class: None
